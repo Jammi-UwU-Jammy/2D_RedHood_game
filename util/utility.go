@@ -20,6 +20,10 @@ type Point struct {
 	Y int
 }
 
+type Vector struct {
+	X, Y float64
+}
+
 func CheckErrExit(errCode int, err error) {
 	if err != nil {
 		fmt.Println(err)
