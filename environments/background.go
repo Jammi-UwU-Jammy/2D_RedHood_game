@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	tiledBG       = "assets/bground/tiledBG.tmx"
+	tiledBG       = "assets/bground/default.tmx"
 	tiledObstacle = "bground/default.tmx"
 )
 
@@ -45,7 +45,7 @@ func (bg *BGround) Update() {
 func (bg *BGround) Draw(screen *ebiten.Image) {
 	bg.rendALayer(0, screen)
 	bg.rendALayer(1, screen)
-	bg.rendALayer(2, screen)
+	//bg.rendALayer(2, screen)
 }
 
 func (bg *BGround) rendALayer(layer int, screen *ebiten.Image) {

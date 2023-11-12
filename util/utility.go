@@ -9,6 +9,7 @@ import (
 	"github.com/lafriks/go-tiled"
 	"golang.org/x/mobile/asset"
 	"log"
+	"time"
 )
 
 var Assets embed.FS
@@ -43,9 +44,17 @@ func LoadEmbededSound(filePath string, errCode int) asset.File {
 func MakeEImagesFromMap(tiledMap tiled.Map) map[uint32]*ebiten.Image {
 	idToImage := make(map[uint32]*ebiten.Image)
 	for _, tile := range tiledMap.Tilesets[0].Tiles {
-		ebitenImageTile, _, err := ebitenutil.NewImageFromFile(tile.Image.Source)
+		mSource := "assets/bground/" + tile.Image.Source
+		ebitenImageTile, _, err := ebitenutil.NewImageFromFile(mSource)
 		CheckErrExit(10, err)
 		idToImage[tile.ID] = ebitenImageTile
 	}
 	return idToImage
+}
+
+func IsCDExceeded(CDinSec float64, since time.Time) bool {
+	if time.Since(since).Seconds() > CDinSec {
+		return true
+	}
+	return false
 }
