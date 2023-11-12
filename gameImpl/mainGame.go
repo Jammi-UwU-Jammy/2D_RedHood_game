@@ -6,16 +6,18 @@ import (
 	"RedHood/util"
 	"github.com/hajimehoshi/ebiten/v2"
 	_ "github.com/hajimehoshi/ebiten/v2"
+	"github.com/lafriks/go-tiled"
 )
 
 func NewGame() *Game {
-	ebiten.SetWindowSize(1500, 800)
+	ebiten.SetWindowSize(1600, 960)
 	ebiten.SetWindowTitle("Red In Da Hood")
 
 	game := Game{}
 	game.background = environments.NewDefaultBackground()
 	game.player = characters.NewPlayer()
 	game.enemy = characters.NewEnemy()
+	game.background.GetObjectLayer()
 
 	return &game
 }
@@ -30,6 +32,8 @@ type Game struct {
 	player     *characters.Player
 	enemy      *characters.Mob
 	background *environments.BGround
+
+	objects []*tiled.Object
 }
 
 func (g Game) Update() error {

@@ -33,7 +33,6 @@ func NewDefaultBackground() *BGround {
 
 	bg.Level = bgMap
 	bg.tiledHash = util.MakeEImagesFromMap(*bgMap)
-	//bg.obstacleHash = util.MakeEImagesFromMap(*obstacleMap)
 
 	return &bg
 }
@@ -63,5 +62,12 @@ func (bg *BGround) rendALayer(layer int, screen *ebiten.Image) {
 				screen.DrawImage(bgTileToDraw, bg.ops)
 			}
 		}
+	}
+}
+
+func (bg *BGround) GetObjectLayer() {
+	g := bg.Level.ObjectGroups[0]
+	for _, item := range g.Objects {
+		println(item.ID)
 	}
 }
