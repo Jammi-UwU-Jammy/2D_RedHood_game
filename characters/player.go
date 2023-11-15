@@ -3,6 +3,7 @@ package characters
 import (
 	"RedHood/util"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/lafriks/go-tiled"
 	"time"
 )
 
@@ -14,12 +15,19 @@ const (
 )
 
 func NewPlayer() *Player {
-	character := &Character{facing: 1, lastCast: time.Now(), Velocity: util.Vector{X: 0, Y: 0}}
+	character := &Character{
+		LocX: 800, LocY: 500,
+		facing:   1,
+		lastCast: time.Now(),
+		Velocity: util.Vector{X: 0, Y: 0}}
 	player := Player{Character: character}
 
 	player.idleImages = player.loadImageAssets(IDLE_IMAGES_URI, util.Point{X: 0, Y: 0}, 80, 80)
 	player.runImages = player.loadImageAssets(RUN_IMAGES_URI, util.Point{X: 0, Y: 0}, 80, 80)
 	player.castImages = player.loadImageAssets(CAST_IMAGES_URI, util.Point{X: 0, Y: 0}, 80, 80)
+
+	player.CurrentImg = player.idleImages[0]
+	player.LocY -= float64(player.CurrentImg.Bounds().Dy())
 	return &player
 }
 
@@ -29,7 +37,7 @@ type Player struct {
 	castImages []*ebiten.Image
 }
 
-func (p *Player) Update() {
+func (p *Player) Update(obstacles []*tiled.Object) {
 	oldX, oldY := p.LocX, p.LocY
 
 	switch {
@@ -58,5 +66,9 @@ func (p *Player) Update() {
 		p.CurrentImg = p.idleImages[(p.trackFrame-1)/16]
 	}
 	p.Velocity.X, p.Velocity.Y = p.LocX-oldX, p.LocY-oldY
-	//TODO: collision
+	if p.collisionVSBG(obstacles) {
+		p.LocX -= p.Velocity.X
+		p.LocY -= p.Velocity.Y
+		//fmt.Println("Collided")
+	}
 }

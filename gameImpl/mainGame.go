@@ -17,7 +17,8 @@ func NewGame() *Game {
 	game.background = environments.NewDefaultBackground()
 	game.player = characters.NewPlayer()
 	game.enemy = characters.NewEnemy()
-	game.background.GetObjectLayer()
+
+	game.obstacles = game.background.Level.ObjectGroups[0].Objects
 
 	return &game
 }
@@ -33,12 +34,13 @@ type Game struct {
 	enemy      *characters.Mob
 	background *environments.BGround
 
-	objects []*tiled.Object
+	obstacles []*tiled.Object
 }
 
 func (g Game) Update() error {
+
 	g.background.Update()
-	g.player.Update()
+	g.player.Update(g.obstacles)
 	g.enemy.Update()
 
 	return nil

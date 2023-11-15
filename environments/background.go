@@ -54,20 +54,18 @@ func (bg *BGround) rendALayer(layer int, screen *ebiten.Image) {
 
 			TileXpos := float64(bg.Level.TileWidth * tileX)
 			TileYpos := float64(bg.Level.TileHeight * tileY)
-			bg.ops.GeoM.Translate(TileXpos, TileYpos)
 
 			tileToDraw := bg.Level.Layers[layer].Tiles[tileY*bg.Level.Width+tileX]
 			if tileToDraw.ID != 0 {
 				bgTileToDraw := bg.tiledHash[tileToDraw.ID]
+				var tileAdjustY float64 = 0
+				if layer == 1 {
+					tileAdjustY = float64(bgTileToDraw.Bounds().Dy())
+				}
+				bg.ops.GeoM.Translate(TileXpos, TileYpos+tileAdjustY) //TODO: -tileAdjustY
+
 				screen.DrawImage(bgTileToDraw, bg.ops)
 			}
 		}
-	}
-}
-
-func (bg *BGround) GetObjectLayer() {
-	g := bg.Level.ObjectGroups[0]
-	for _, item := range g.Objects {
-		println(item.ID)
 	}
 }
