@@ -1,8 +1,8 @@
 package characters
 
 import (
+	"RedHood/environments"
 	"RedHood/util"
-	"fmt"
 	"github.com/co0p/tankism/lib/collision"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/lafriks/go-tiled"
@@ -14,7 +14,7 @@ type Character struct {
 	CurrentImg *ebiten.Image
 	idleImages []*ebiten.Image
 	runImages  []*ebiten.Image
-	castImages []*ebiten.Image
+	atkImages  []*ebiten.Image
 	exitImages []*ebiten.Image
 
 	HP int
@@ -45,7 +45,7 @@ func (c *Character) loadImageAssets(uri string, offset util.Point, width, height
 }
 
 func (c *Character) Draw(screen *ebiten.Image) {
-	if c.trackFrame >= len(c.idleImages)*16 {
+	if c.trackFrame >= len(c.idleImages)*60 {
 		c.trackFrame = 0
 	} else {
 		c.trackFrame += 1
@@ -63,39 +63,23 @@ func (c *Character) GetBoundingBox() collision.BoundingBox {
 	return collision.BoundingBox{
 		X:      c.LocX,
 		Y:      c.LocY,
-		Width:  10, //float64(c.CurrentImg.Bounds().Dx()),
-		Height: 10, //float64(c.CurrentImg.Bounds().Dy()),
+		Width:  10,
+		Height: 10,
 	}
 }
 
 func (c *Character) collisionVSBG(obstacles []*tiled.Object) bool {
 	for _, obs := range obstacles {
-		//obsBox := util.AABB{
-		//	MinX: obs.X,
-		//	MinY: obs.Y,
-		//	MaxX: obs.X + obs.Width,
-		//	MaxY: obs.Y + obs.Height,
-		//}
-		//charBox := util.AABB{
-		//	MinX: c.LocX,
-		//	MinY: c.LocY,
-		//	MaxX: c.LocX + float64(c.CurrentImg.Bounds().Dx()),
-		//	MaxY: c.LocY + float64(c.CurrentImg.Bounds().Dy()),
-		//}
-		//if util.IfBoxesCollided(obsBox, charBox) {
-		//	return true
-		//}
 		box := collision.BoundingBox{
 			X:      obs.X,
-			Y:      obs.Y,
+			Y:      obs.Y - environments.STD_TILE_WIDTH,
 			Width:  obs.Width,
 			Height: obs.Height,
 		}
-
 		if util.IfCollided(c.GetBoundingBox(), box) {
-			fmt.Println(obs.X, " : ", obs.Y)
-			fmt.Println("Collided with an obstacle: ", obs.ID)
-			fmt.Println(c.LocX, " : ", c.LocY)
+			//fmt.Println(obs.X, " : ", obs.Y)
+			//fmt.Println("Collided with an obstacle: ", obs.ID)
+			//fmt.Println(c.LocX, " : ", c.LocY)
 			return true
 		}
 	}

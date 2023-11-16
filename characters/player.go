@@ -16,7 +16,7 @@ const (
 
 func NewPlayer() *Player {
 	character := &Character{
-		LocX: 800, LocY: 500,
+		LocX: 32, LocY: 500,
 		facing:   1,
 		lastCast: time.Now(),
 		Velocity: util.Vector{X: 0, Y: 0}}
@@ -44,26 +44,26 @@ func (p *Player) Update(obstacles []*tiled.Object) {
 	case ebiten.IsKeyPressed(ebiten.KeyArrowLeft):
 		p.LocX -= SPEED
 		p.facing = -1
-		p.CurrentImg = p.runImages[(p.trackFrame-1)/16]
+		p.CurrentImg = p.runImages[(p.trackFrame-1)/60]
 	case ebiten.IsKeyPressed(ebiten.KeyArrowRight):
 		p.LocX += SPEED
 		p.facing = 1
-		p.CurrentImg = p.runImages[(p.trackFrame-1)/16]
+		p.CurrentImg = p.runImages[(p.trackFrame-1)/60]
 	case ebiten.IsKeyPressed(ebiten.KeyArrowUp):
 		p.LocY -= SPEED
-		p.CurrentImg = p.runImages[(p.trackFrame-1)/16]
+		p.CurrentImg = p.runImages[(p.trackFrame-1)/60]
 	case ebiten.IsKeyPressed(ebiten.KeyArrowDown):
 		p.LocY += SPEED
-		p.CurrentImg = p.runImages[(p.trackFrame-1)/16]
+		p.CurrentImg = p.runImages[(p.trackFrame-1)/60]
 	case ebiten.IsKeyPressed(ebiten.KeyA):
-		p.CurrentImg = p.castImages[(p.trackFrame-1)/16]
+		p.CurrentImg = p.castImages[(p.trackFrame-1)/60]
 		if util.IsCDExceeded(2, p.lastCast) {
 
 		} else {
 
 		}
 	default:
-		p.CurrentImg = p.idleImages[(p.trackFrame-1)/16]
+		p.CurrentImg = p.idleImages[(p.trackFrame-1)/60]
 	}
 	p.Velocity.X, p.Velocity.Y = p.LocX-oldX, p.LocY-oldY
 	if p.collisionVSBG(obstacles) {

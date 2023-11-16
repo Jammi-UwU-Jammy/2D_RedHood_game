@@ -9,20 +9,10 @@ import (
 	"github.com/lafriks/go-tiled"
 	"golang.org/x/mobile/asset"
 	"log"
-	"time"
 )
 
 var Assets embed.FS
 var SfxContext = audio.NewContext(48000)
-
-type Point struct {
-	X int
-	Y int
-}
-
-type Vector struct {
-	X, Y float64
-}
 
 func CheckErrExit(errCode int, err error) {
 	if err != nil {
@@ -54,11 +44,4 @@ func MakeEImagesFromMap(tiledMap tiled.Map) map[uint32]*ebiten.Image {
 		idToImage[tile.ID] = ebitenImageTile
 	}
 	return idToImage
-}
-
-func IsCDExceeded(CDinSec float64, since time.Time) bool {
-	if time.Since(since).Seconds() > CDinSec {
-		return true
-	}
-	return false
 }
