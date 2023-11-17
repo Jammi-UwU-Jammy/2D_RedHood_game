@@ -40,7 +40,6 @@ func (c *Character) loadImageAssets(uri string, offset util.Point, width, height
 		pool = append(pool, subImage)
 		offset.X += width
 	}
-	//fmt.Println(len(pool))
 	return pool
 }
 
