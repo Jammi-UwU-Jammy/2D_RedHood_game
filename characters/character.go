@@ -10,7 +10,10 @@ import (
 	"time"
 )
 
-const STD_TILE_WIDTH = 32
+const (
+	STD_TILE_WIDTH = 32
+	IMG_PER_SEC    = 30 //assuming 60 frames/sec
+)
 
 type Character struct {
 	CurrentImg *ebiten.Image
@@ -19,14 +22,15 @@ type Character struct {
 	atkImages  []*ebiten.Image
 	exitImages []*ebiten.Image
 
-	HP int
-
-	LocX       float64
-	LocY       float64
-	Velocity   util.Vector
-	facing     int
+	HP         int
 	trackFrame int
-	lastCast   time.Time
+	maxFrame   int
+
+	LocX     float64
+	LocY     float64
+	Velocity util.Vector
+	facing   int
+	lastCast time.Time
 
 	*collision.BoundingBox
 }
@@ -46,8 +50,8 @@ func (c *Character) loadImageAssets(uri string, offset util.Point, width, height
 }
 
 func (c *Character) Draw(screen *ebiten.Image) {
-	if c.trackFrame >= len(c.idleImages)*60 {
-		c.trackFrame = 0
+	if c.trackFrame >= len(c.idleImages)*IMG_PER_SEC {
+		c.trackFrame = 1
 	} else {
 		c.trackFrame += 1
 	}

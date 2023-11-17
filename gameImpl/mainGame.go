@@ -5,6 +5,7 @@ import (
 	"RedHood/environments"
 	"fmt"
 	"github.com/ebitenui/ebitenui"
+	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	_ "github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -13,7 +14,7 @@ import (
 
 type Game struct {
 	bagUI    *ebitenui.UI
-	playerUI *ebitenui.UI
+	playerUI *environments.PlayerUI
 
 	screen     *ebiten.Image
 	player     *characters.Player
@@ -30,8 +31,8 @@ func NewGame(player *characters.Player, gameMap *environments.Map) *Game {
 	game := Game{}
 
 	game.player = player
-	game.bagUI = environments.NewUI()
-	game.playerUI = environments.PlayerUI()
+	//game.bagUI = environments.NewUI()
+	game.playerUI = environments.NewPlayerUI()
 
 	game.background = gameMap
 	game.obstacles = game.background.TiledMap.ObjectGroups[0].Objects
@@ -45,17 +46,19 @@ func (g Game) Update() error {
 	g.background.Update()
 	g.player.Update(g.obstacles)
 
-	g.bagUI.Update()
+	g.playerUI.HP.Configure(widget.ProgressBarOpts.Values(0, 100, g.player.HP))
+	g.playerUI.Update()
+	//g.bagUI.Update()
 	return nil
 }
 
 func (g Game) Draw(screen *ebiten.Image) {
 	g.background.Draw(screen)
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("%4.2f:%4.2f", g.player.LocX, g.player.LocY))
+	ebitenutil.DebugPrint(screen, fmt.Sprintf("%d", g.player.HP))
 	g.player.Draw(screen)
 
 	g.playerUI.Draw(screen)
-	g.bagUI.Draw(screen)
+	//g.bagUI.Draw(screen)
 }
 
 func (g Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {

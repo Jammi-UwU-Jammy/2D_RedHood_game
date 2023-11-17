@@ -12,8 +12,9 @@ import (
 	"image/color"
 )
 
-type UIWindow struct {
+type PlayerUI struct {
 	ebitenui.UI
+	HP *widget2.ProgressBar
 }
 
 func NewUI() *ebitenui.UI {
@@ -91,7 +92,7 @@ func NewUI() *ebitenui.UI {
 	return &ui
 }
 
-func PlayerUI() *ebitenui.UI {
+func NewPlayerUI() *PlayerUI {
 	rootContainer := widget2.NewContainer(
 		widget2.ContainerOpts.BackgroundImage(e_m.NewNineSliceColor(color.Transparent)),
 		widget2.ContainerOpts.Layout(widget2.NewAnchorLayout()),
@@ -132,9 +133,13 @@ func PlayerUI() *ebitenui.UI {
 	)
 	progressBarsContainer.AddChild(hProgressbar)
 	rootContainer.AddChild(progressBarsContainer)
-	ui := ebitenui.UI{
-		Container: rootContainer,
+	eUI := ebitenui.UI{Container: rootContainer}
+
+	ui := PlayerUI{
+		UI: eUI,
+		HP: hProgressbar,
 	}
+
 	return &ui
 }
 

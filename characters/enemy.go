@@ -2,7 +2,6 @@ package characters
 
 import (
 	"RedHood/util"
-	"fmt"
 	"math"
 	"math/rand"
 	"time"
@@ -41,6 +40,7 @@ func NewEnemyMage() *Mob {
 	mob.atkImages = mob.loadImageAssets(MAGE_CAST_IMAGES_URI, util.Point{X: 0, Y: 0}, 250, 250)
 
 	mob.CurrentImg = mob.idleImages[0]
+	mob.maxFrame = len(mob.idleImages)
 	return &mob
 }
 
@@ -61,14 +61,14 @@ func NewEnemySkeleton() *Mob {
 }
 
 func (m *Mob) Update(player *Player) {
-	m.CurrentImg = m.idleImages[(m.trackFrame-1)/60]
+	m.CurrentImg = m.idleImages[(m.trackFrame-1)/IMG_PER_SEC]
 
 	m.stateUpdate(player.LocX, player.LocY)
-	fmt.Printf("Player: %f %f | Enemy: %f %f\n", player.LocX, player.LocY, m.LocX, m.LocY)
 
 	switch m.state {
 	case ATTACK_STATE:
-		m.CurrentImg = m.atkImages[(m.trackFrame-1)/60]
+		m.maxFrame = len(m.atkImages)
+		m.CurrentImg = m.atkImages[(m.trackFrame-1)/IMG_PER_SEC]
 	case WALK_STATE:
 		x, y := util.UnitVector(m.Velocity.X, m.Velocity.Y)
 		m.LocX += x
@@ -76,18 +76,21 @@ func (m *Mob) Update(player *Player) {
 		m.Velocity.X *= 0.95
 		m.Velocity.Y *= 0.95
 		m.facing = int(m.Velocity.X / math.Abs(m.Velocity.X))
-		m.CurrentImg = m.runImages[(m.trackFrame-1)/60]
+		m.maxFrame = len(m.runImages)
+		m.CurrentImg = m.runImages[(m.trackFrame-1)/IMG_PER_SEC]
 	case RUN_STATE:
 		x, y := util.UnitVectorFromTwoPoints(m.LocX, m.LocY, player.LocX, player.LocY)
 		m.LocX += x
 		m.LocY += y
 		m.facing = int(x / math.Abs(x))
-		m.CurrentImg = m.runImages[(m.trackFrame-1)/60]
+		m.maxFrame = len(m.runImages)
+		m.CurrentImg = m.runImages[(m.trackFrame-1)/IMG_PER_SEC]
 	default:
 		if util.VectorLength(m.Velocity.X, m.Velocity.Y) < 0.01 && rand.Intn(1000) < 3 {
 			m.Velocity.X, m.Velocity.Y = rand.Float64()*5-2, rand.Float64()*5-2
 		}
-		m.CurrentImg = m.idleImages[(m.trackFrame-1)/60]
+		m.maxFrame = len(m.idleImages)
+		m.CurrentImg = m.idleImages[(m.trackFrame-1)/IMG_PER_SEC]
 	}
 }
 
