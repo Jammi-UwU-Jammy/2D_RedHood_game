@@ -1,7 +1,7 @@
 package characters
 
 import (
-	"RedHood/environments"
+	//"RedHood/environments"
 	"RedHood/util"
 	"github.com/co0p/tankism/lib/collision"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -9,6 +9,8 @@ import (
 	"image"
 	"time"
 )
+
+const STD_TILE_WIDTH = 32
 
 type Character struct {
 	CurrentImg *ebiten.Image
@@ -71,7 +73,7 @@ func (c *Character) collisionVSBG(obstacles []*tiled.Object) bool {
 	for _, obs := range obstacles {
 		box := collision.BoundingBox{
 			X:      obs.X,
-			Y:      obs.Y - environments.STD_TILE_WIDTH,
+			Y:      obs.Y - STD_TILE_WIDTH,
 			Width:  obs.Width,
 			Height: obs.Height,
 		}

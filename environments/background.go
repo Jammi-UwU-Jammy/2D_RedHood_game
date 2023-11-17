@@ -25,7 +25,7 @@ type Map struct {
 	Enemies []*characters.Mob
 }
 
-func NewDefaultBackground() *Map {
+func NewDefaultBackground(enemies []*characters.Mob) *Map {
 	file := tiled.WithFileSystem(util.Assets)
 	bgMap, err := tiled.LoadFile(tiledBG, file)
 	util.CheckErrExit(100, err)
@@ -35,12 +35,15 @@ func NewDefaultBackground() *Map {
 
 	bg.TiledMap = bgMap
 	bg.tiledHash = util.MakeEImagesFromMap(*bgMap)
+	bg.Enemies = enemies
 
 	return &bg
 }
 
 func (bg *Map) Update() {
-
+	//for _, mob := range bg.Enemies {
+	//	mob.Update()
+	//}
 }
 
 func (bg *Map) PopulateMobs(mobs []*characters.Mob) {
@@ -80,6 +83,6 @@ func (bg *Map) rendALayer(layer int, screen *ebiten.Image) {
 
 func (bg *Map) renderMobs(screen *ebiten.Image) {
 	for _, mob := range bg.Enemies {
-		screen.DrawImage(mob.CurrentImg, bg.ops)
+		mob.Draw(screen)
 	}
 }

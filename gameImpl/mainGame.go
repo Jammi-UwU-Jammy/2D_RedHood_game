@@ -3,7 +3,6 @@ package gameImpl
 import (
 	"RedHood/characters"
 	"RedHood/environments"
-	"RedHood/util"
 	"fmt"
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -11,25 +10,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/lafriks/go-tiled"
 )
-
-func NewGame() *Game {
-	ebiten.SetWindowSize(1600, 960)
-	ebiten.SetWindowTitle("Red In Da Hood")
-
-	game := Game{}
-	game.bagUI = environments.NewUI()
-	game.playerUI = environments.PlayerUI()
-
-	game.obstacles = game.background.TiledMap.ObjectGroups[0].Objects
-	game.enemies = game.background.Enemies
-
-	return &game
-}
-
-func RunGame(game *Game) {
-	err := ebiten.RunGame(game)
-	util.CheckErrExit(-1, err)
-}
 
 type Game struct {
 	bagUI    *ebitenui.UI
@@ -43,11 +23,27 @@ type Game struct {
 	obstacles []*tiled.Object
 }
 
+func NewGame(player *characters.Player, gameMap *environments.Map) *Game {
+	ebiten.SetWindowSize(1600, 960)
+	ebiten.SetWindowTitle("Red In Da Hood")
+
+	game := Game{}
+
+	game.player = player
+	game.bagUI = environments.NewUI()
+	game.playerUI = environments.PlayerUI()
+
+	game.background = gameMap
+	game.obstacles = game.background.TiledMap.ObjectGroups[0].Objects
+	game.enemies = game.background.Enemies
+
+	return &game
+}
+
 func (g Game) Update() error {
 
 	g.background.Update()
-	//g.player.Update(g.obstacles)
-	//g.enemy.Update(g.player)
+	g.player.Update(g.obstacles)
 
 	g.bagUI.Update()
 	return nil
