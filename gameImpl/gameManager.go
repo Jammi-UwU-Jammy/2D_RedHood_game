@@ -3,6 +3,7 @@ package gameImpl
 import (
 	"RedHood/characters"
 	"RedHood/environments"
+	"RedHood/util"
 	"fmt"
 	"sync"
 	"time"
@@ -27,7 +28,6 @@ func (m *Manager) PopulateResources() {
 
 	m.spawnPlayer()
 	m.CurrentGame = NewGame(m.currentPlayer, m.currentMap)
-
 }
 
 func (m *Manager) spawnPlayer() {
@@ -64,11 +64,27 @@ func (m *Manager) updateGame() {
 	defer m.gameMu.RUnlock()
 
 	if m.CurrentGame != nil {
-		fmt.Println("Updating")
+		m.getPlayerData()
 		m.updateEnemies()
 	}
 	time.Sleep(17 * time.Millisecond)
 
+}
+
+func (m *Manager) getPlayerData() {
+	locX, _ := m.CurrentGame.PlayerData["LocX"].(float64)
+	locY, _ := m.CurrentGame.PlayerData["LocY"].(float64)
+	_, exists := m.CurrentGame.PlayerData["Damage"]
+	if exists {
+		for _, mob := range m.currentMap.Enemies {
+			dmg, _ := m.CurrentGame.PlayerData["Damage"].(int)
+			if util.VectorsDistance(mob.LocX, mob.LocY, locX, locY) < 20 {
+				mob.HP -= dmg
+				fmt.Println(mob.HP)
+				break //only one mob
+			}
+		}
+	}
 }
 
 func (m *Manager) updateEnemies() {

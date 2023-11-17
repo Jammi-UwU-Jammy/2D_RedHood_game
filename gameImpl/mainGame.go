@@ -22,6 +22,9 @@ type Game struct {
 	background *environments.Map
 
 	obstacles []*tiled.Object
+
+	//Field for Manager to access
+	PlayerData map[string]interface{}
 }
 
 func NewGame(player *characters.Player, gameMap *environments.Map) *Game {
@@ -37,14 +40,15 @@ func NewGame(player *characters.Player, gameMap *environments.Map) *Game {
 	game.background = gameMap
 	game.obstacles = game.background.TiledMap.ObjectGroups[0].Objects
 	game.enemies = game.background.Enemies
+	game.PlayerData = make(map[string]interface{})
 
 	return &game
 }
 
-func (g Game) Update() error {
+func (g *Game) Update() error {
 
 	g.background.Update()
-	g.player.Update(g.obstacles)
+	g.PlayerData = g.player.Update(g.obstacles)
 
 	g.playerUI.HP.Configure(widget.ProgressBarOpts.Values(0, 100, g.player.HP))
 	g.playerUI.Update()
@@ -52,7 +56,7 @@ func (g Game) Update() error {
 	return nil
 }
 
-func (g Game) Draw(screen *ebiten.Image) {
+func (g *Game) Draw(screen *ebiten.Image) {
 	g.background.Draw(screen)
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("%d", g.player.HP))
 	g.player.Draw(screen)
@@ -61,6 +65,6 @@ func (g Game) Draw(screen *ebiten.Image) {
 	//g.bagUI.Draw(screen)
 }
 
-func (g Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
+func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return outsideWidth, outsideHeight
 }

@@ -37,7 +37,8 @@ type Player struct {
 	*Character
 }
 
-func (p *Player) Update(obstacles []*tiled.Object) {
+func (p *Player) Update(obstacles []*tiled.Object) map[string]interface{} {
+	outputs := make(map[string]interface{})
 	oldX, oldY := p.LocX, p.LocY
 
 	switch {
@@ -62,10 +63,10 @@ func (p *Player) Update(obstacles []*tiled.Object) {
 	case ebiten.IsKeyPressed(ebiten.KeyA):
 		p.maxFrame = len(p.atkImages)
 		p.CurrentImg = p.atkImages[(p.trackFrame-1)/IMG_PER_SEC]
-		if util.IsCDExceeded(0.5, p.lastCast) {
-		} else {
-
+		if util.IsCDExceeded(0.4, p.lastCast) {
+			p.lastCast = time.Now()
 		}
+		outputs["Damage"] = 1
 	default:
 		p.maxFrame = len(p.idleImages)
 		p.CurrentImg = p.idleImages[(p.trackFrame-1)/IMG_PER_SEC]
@@ -76,4 +77,7 @@ func (p *Player) Update(obstacles []*tiled.Object) {
 		p.LocY -= p.Velocity.Y
 		//fmt.Println("Collided")
 	}
+	outputs["LocX"], outputs["LocY"] = p.LocX, p.LocY
+
+	return outputs
 }

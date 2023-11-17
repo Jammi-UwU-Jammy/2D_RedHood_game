@@ -30,6 +30,7 @@ type Mob struct {
 func NewEnemyMage() *Mob {
 	character := &Character{
 		LocX: 176, LocY: 527,
+		HP:       150,
 		facing:   1,
 		lastCast: time.Now(),
 		Velocity: util.Vector{X: 0, Y: 0}}
@@ -47,6 +48,7 @@ func NewEnemyMage() *Mob {
 func NewEnemySkeleton() *Mob {
 	character := &Character{
 		LocX: 176, LocY: 527,
+		HP:       50,
 		facing:   1,
 		lastCast: time.Now(),
 		Velocity: util.Vector{X: 0, Y: 0}}
