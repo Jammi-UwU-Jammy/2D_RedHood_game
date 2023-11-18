@@ -3,6 +3,7 @@
 3. Mage enemy's image height is too big, results in being rendered lower than character.
 4. When changing between state images, the trackFrame should be reset too, else the state changes while images continue
 where the last state left off.
+5. The universal items should have an ID that identifies whom it belongs to, therefore decides who to loot.
 
 Game server -> Does game logic including map loading, collisions, monster's movements, etc.
 Client -> receive environments data, render game on local machine, send player's data to server

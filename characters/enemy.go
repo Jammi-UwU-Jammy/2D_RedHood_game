@@ -71,7 +71,7 @@ func (m *Mob) Update(player *Player) int {
 	switch m.state {
 	case ATTACK_STATE:
 		m.maxFrame = len(m.atkImages)
-		if util.IsCDExceeded(0.5, m.lastCast) {
+		if util.IsCDExceeded(1, m.lastCast) {
 			m.lastCast = time.Now()
 			outputDamage = 1
 		}

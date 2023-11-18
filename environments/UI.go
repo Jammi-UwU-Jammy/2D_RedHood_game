@@ -1,6 +1,7 @@
 package environments
 
 import (
+	"fmt"
 	"github.com/ebitenui/ebitenui"
 	_ "github.com/ebitenui/ebitenui"
 	e_m "github.com/ebitenui/ebitenui/image"
@@ -13,83 +14,10 @@ import (
 )
 
 type PlayerUI struct {
-	ebitenui.UI
-	HP *widget2.ProgressBar
-}
-
-func NewUI() *ebitenui.UI {
-	ui := ebitenui.UI{}
-	buttonImg, _ := loadButtonImage()
-	face, _ := loadFont(20)
-	titleFace, _ := loadFont(12)
-
-	windowContainer := widget2.NewContainer(
-		widget2.ContainerOpts.BackgroundImage(e_m.NewNineSliceColor(color.NRGBA{R: 100, G: 100, B: 100, A: 255})),
-		widget2.ContainerOpts.Layout(widget2.NewAnchorLayout()),
-	)
-	windowContainer.AddChild(widget2.NewText(
-		widget2.TextOpts.Text("Hello.", face, color.NRGBA{R: 254, G: 254, B: 254, A: 254}),
-		widget2.TextOpts.WidgetOpts(widget2.WidgetOpts.LayoutData(widget2.AnchorLayoutData{
-			HorizontalPosition: widget2.AnchorLayoutPositionCenter,
-			VerticalPosition:   widget2.AnchorLayoutPositionCenter,
-		})),
-	))
-	titleContainer := widget2.NewContainer(
-		widget2.ContainerOpts.BackgroundImage(e_m.NewNineSliceColor(color.NRGBA{R: 150, G: 150, B: 150, A: 255})),
-		widget2.ContainerOpts.Layout(widget2.NewAnchorLayout()),
-	)
-
-	titleContainer.AddChild(widget2.NewText(
-		widget2.TextOpts.Text("Window Title", titleFace, color.NRGBA{R: 254, G: 255, B: 255, A: 255}),
-		widget2.TextOpts.WidgetOpts(widget2.WidgetOpts.LayoutData(widget2.AnchorLayoutData{
-			HorizontalPosition: widget2.AnchorLayoutPositionCenter,
-			VerticalPosition:   widget2.AnchorLayoutPositionCenter,
-		})),
-	))
-
-	window := widget2.NewWindow(
-		widget2.WindowOpts.Contents(windowContainer),
-		widget2.WindowOpts.TitleBar(titleContainer, 25),
-		widget2.WindowOpts.Modal(),
-		widget2.WindowOpts.CloseMode(widget2.CLICK_OUT),
-		widget2.WindowOpts.MaxSize(300, 200),
-	)
-
-	rootContainer := widget2.NewContainer(
-		widget2.ContainerOpts.BackgroundImage(e_m.NewNineSliceColor(color.Transparent)),
-		widget2.ContainerOpts.Layout(widget2.NewAnchorLayout()),
-	)
-
-	button := widget2.NewButton(
-		widget2.ButtonOpts.WidgetOpts(
-			widget2.WidgetOpts.LayoutData(widget2.AnchorLayoutData{
-				HorizontalPosition: widget2.AnchorLayoutPositionCenter,
-				VerticalPosition:   widget2.AnchorLayoutPositionCenter,
-			}),
-		),
-		widget2.ButtonOpts.Image(buttonImg),
-		widget2.ButtonOpts.Text("Open Bag", face, &widget2.ButtonTextColor{
-			Idle: color.NRGBA{R: 0xdf, G: 0xf4, B: 0xff, A: 0xff},
-		}),
-		widget2.ButtonOpts.TextPadding(widget2.Insets{
-			Left:   30,
-			Right:  30,
-			Top:    5,
-			Bottom: 5,
-		}),
-		widget2.ButtonOpts.ClickedHandler(func(args *widget2.ButtonClickedEventArgs) {
-			//Get the preferred size of the content
-			x, y := window.Contents.PreferredSize()
-			r := image.Rect(0, 0, x, y)
-			r = r.Add(image.Point{100, 50})
-			window.SetLocation(r)
-			ui.AddWindow(window)
-		}),
-	)
-	rootContainer.AddChild(button)
-	ui.Container = rootContainer
-
-	return &ui
+	*ebitenui.UI
+	HP        *widget2.ProgressBar
+	Bag       *widget2.Container
+	bagToggle *widget2.Button
 }
 
 func NewPlayerUI() *PlayerUI {
@@ -132,18 +60,93 @@ func NewPlayerUI() *PlayerUI {
 		}),
 	)
 	progressBarsContainer.AddChild(hProgressbar)
+	bag := NewGridContainer(9)
+
+	bagWindow := NewPopUpWindow("Bag", bag)
+	eUI := &ebitenui.UI{Container: rootContainer}
+	bagToggle := NewButton(eUI, bagWindow)
+
 	rootContainer.AddChild(progressBarsContainer)
-	eUI := ebitenui.UI{Container: rootContainer}
+	rootContainer.AddChild(bagToggle)
 
 	ui := PlayerUI{
-		UI: eUI,
-		HP: hProgressbar,
+		UI:        eUI,
+		HP:        hProgressbar,
+		Bag:       bag,
+		bagToggle: bagToggle,
 	}
-
 	return &ui
 }
 
-func loadButtonImage() (*widget2.ButtonImage, error) {
+func NewPopUpWindow(label string, windowContainer *widget2.Container) *widget2.Window {
+	titleContainer := widget2.NewContainer(
+		widget2.ContainerOpts.BackgroundImage(e_m.NewNineSliceColor(color.NRGBA{150, 150, 150, 255})),
+		widget2.ContainerOpts.Layout(widget2.NewAnchorLayout()),
+	)
+	titleContainer.AddChild(widget2.NewText(
+		widget2.TextOpts.Text(label, loadFont(20), color.NRGBA{0, 0, 255, 255}),
+		widget2.TextOpts.WidgetOpts(widget2.WidgetOpts.LayoutData(widget2.AnchorLayoutData{
+			HorizontalPosition: widget2.AnchorLayoutPositionCenter,
+			VerticalPosition:   widget2.AnchorLayoutPositionCenter,
+		})),
+	))
+	bagWindow := widget2.NewWindow(
+		widget2.WindowOpts.Contents(windowContainer),
+		widget2.WindowOpts.TitleBar(titleContainer, 50),
+	)
+	return bagWindow
+}
+
+func NewGridContainer(size int) *widget2.Container {
+	rootContainer := widget2.NewContainer(
+		widget2.ContainerOpts.BackgroundImage(e_m.NewNineSliceColor(color.NRGBA{R: 100, G: 100, B: 100})),
+		widget2.ContainerOpts.Layout(widget2.NewGridLayout(
+			widget2.GridLayoutOpts.Columns(4),
+			widget2.GridLayoutOpts.Padding(widget2.NewInsetsSimple(30)),
+			widget2.GridLayoutOpts.Spacing(0, 0),
+		)),
+	)
+	for i := 0; i < size; i++ {
+		innerContainer := widget2.NewContainer(
+			widget2.ContainerOpts.BackgroundImage(e_m.NewNineSliceColor(color.NRGBA{83, 136, 162, 255})),
+			widget2.ContainerOpts.WidgetOpts(
+				widget2.WidgetOpts.MinSize(32, 32),
+			),
+		)
+		rootContainer.AddChild(innerContainer)
+	}
+	return rootContainer
+}
+
+func NewButton(ui *ebitenui.UI, window *widget2.Window) *widget2.Button {
+	button := widget2.NewButton(
+		widget2.ButtonOpts.WidgetOpts(
+			// instruct the ui's anchor layout to center the button both horizontally and vertically
+			widget2.WidgetOpts.LayoutData(widget2.AnchorLayoutData{
+				HorizontalPosition: widget2.AnchorLayoutPositionCenter,
+				VerticalPosition:   widget2.AnchorLayoutPositionCenter,
+			}),
+		),
+		widget2.ButtonOpts.Image(loadButtonImage()),
+		widget2.ButtonOpts.Text("Bag", loadFont(12), &widget2.ButtonTextColor{
+			Idle: color.NRGBA{0xdf, 0xf4, 0xff, 0xff},
+		}),
+		widget2.ButtonOpts.TextPadding(widget2.Insets{
+			Left:   30,
+			Right:  30,
+			Top:    5,
+			Bottom: 5,
+		}),
+		widget2.ButtonOpts.ClickedHandler(func(args *widget2.ButtonClickedEventArgs) {
+			window.SetLocation(image.Rect(500, 500, 750, 750))
+			ui.AddWindow(window)
+		}),
+	)
+	button.SetLocation(image.Rect(100, 100, 150, 150))
+	return button
+}
+
+func loadButtonImage() *widget2.ButtonImage {
 	idle := e_m.NewNineSliceColor(color.NRGBA{R: 170, G: 170, B: 180, A: 255})
 
 	hover := e_m.NewNineSliceColor(color.NRGBA{R: 130, G: 130, B: 150, A: 255})
@@ -154,18 +157,18 @@ func loadButtonImage() (*widget2.ButtonImage, error) {
 		Idle:    idle,
 		Hover:   hover,
 		Pressed: pressed,
-	}, nil
+	}
 }
 
-func loadFont(size float64) (font.Face, error) {
+func loadFont(size float64) font.Face {
 	ttfFont, err := truetype.Parse(goregular.TTF)
 	if err != nil {
-		return nil, err
+		fmt.Println("Load font failed.")
 	}
 
 	return truetype.NewFace(ttfFont, &truetype.Options{
 		Size:    size,
 		DPI:     72,
 		Hinting: font.HintingFull,
-	}), nil
+	})
 }

@@ -1,6 +1,7 @@
 package characters
 
 import (
+	"RedHood/etc"
 	"RedHood/util"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/lafriks/go-tiled"
@@ -35,6 +36,8 @@ func NewPlayer() *Player {
 
 type Player struct {
 	*Character
+	Bag      []*etc.Item
+	equipped []*etc.Item
 }
 
 func (p *Player) Update(obstacles []*tiled.Object) map[string]interface{} {
@@ -61,6 +64,8 @@ func (p *Player) Update(obstacles []*tiled.Object) map[string]interface{} {
 		p.LocY += SPEED
 		p.maxFrame = len(p.runImages)
 		p.CurrentImg = p.runImages[(p.trackFrame-1)/IMG_PER_SEC]
+	case ebiten.IsKeyPressed(ebiten.KeySpace):
+		outputs["Loot"] = len(p.Bag)
 	case ebiten.IsKeyPressed(ebiten.KeyA):
 		p.maxFrame = len(p.atkImages)
 		if util.IsCDExceeded(0.2, p.lastCast) {

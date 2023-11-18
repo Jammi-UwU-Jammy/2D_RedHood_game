@@ -3,6 +3,7 @@ package util
 import (
 	"embed"
 	"fmt"
+	"github.com/ebitenui/ebitenui/image"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -44,4 +45,12 @@ func MakeEImagesFromMap(tiledMap tiled.Map) map[uint32]*ebiten.Image {
 		idToImage[tile.ID] = ebitenImageTile
 	}
 	return idToImage
+}
+
+func ImageNineSlice(img *ebiten.Image, centerWidth int, centerHeight int) *image.NineSlice {
+	w := img.Bounds().Dx()
+	h := img.Bounds().Dy()
+	return image.NewNineSlice(img,
+		[3]int{(w - centerWidth) / 2, centerWidth, w - (w-centerWidth)/2 - centerWidth},
+		[3]int{(h - centerHeight) / 2, centerHeight, h - (h-centerHeight)/2 - centerHeight})
 }

@@ -4,8 +4,8 @@ import (
 	"RedHood/characters"
 	"RedHood/environments"
 	"RedHood/etc"
+	"RedHood/util"
 	"fmt"
-	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	_ "github.com/hajimehoshi/ebiten/v2"
@@ -14,7 +14,7 @@ import (
 )
 
 type Game struct {
-	bagUI    *ebitenui.UI
+	//bagUI    *ebitenui.UI
 	playerUI *environments.PlayerUI
 
 	screen     *ebiten.Image
@@ -26,7 +26,7 @@ type Game struct {
 	universalItems []*etc.Item
 
 	//Field for Manager to access
-	PlayerData map[string]interface{}
+	PlayerDataToSend map[string]interface{}
 }
 
 func NewGame(player *characters.Player, gameMap *environments.Map) *Game {
@@ -36,13 +36,13 @@ func NewGame(player *characters.Player, gameMap *environments.Map) *Game {
 	game := Game{}
 
 	game.player = player
-	//game.bagUI = environments.NewUI()
+	//game.bagUI = environments.NewGridContainer(9)
 	game.playerUI = environments.NewPlayerUI()
 
 	game.background = gameMap
 	game.obstacles = game.background.TiledMap.ObjectGroups[0].Objects
 	game.enemies = game.background.Enemies
-	game.PlayerData = make(map[string]interface{})
+	game.PlayerDataToSend = make(map[string]interface{})
 
 	return &game
 }
@@ -50,11 +50,11 @@ func NewGame(player *characters.Player, gameMap *environments.Map) *Game {
 func (g *Game) Update() error {
 
 	g.background.Update()
-	g.PlayerData = g.player.Update(g.obstacles)
+	g.PlayerDataToSend = g.player.Update(g.obstacles)
 
 	g.playerUI.HP.Configure(widget.ProgressBarOpts.Values(0, 100, g.player.HP))
 	g.playerUI.Update()
-	//g.bagUI.Update()
+	g.UpdateBag()
 	return nil
 }
 
@@ -66,6 +66,19 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.DrawEtcItems(screen)
 	g.playerUI.Draw(screen)
 	//g.bagUI.Draw(screen)
+}
+
+func (g *Game) UpdateBag() {
+	g.playerUI.Bag.RemoveChildren()
+	for _, it := range g.player.Bag {
+		container := widget.NewContainer(
+			widget.ContainerOpts.BackgroundImage(util.ImageNineSlice(it.GetImage(), 32, 32)),
+			widget.ContainerOpts.WidgetOpts(
+				widget.WidgetOpts.MinSize(32, 32),
+			),
+		)
+		g.playerUI.Bag.AddChild(container)
+	}
 }
 
 func (g *Game) DrawEtcItems(screen *ebiten.Image) {

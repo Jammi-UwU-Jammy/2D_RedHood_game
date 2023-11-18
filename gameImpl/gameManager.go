@@ -10,6 +10,10 @@ import (
 	"time"
 )
 
+const (
+	MAX_BAG_SLOTS = 6
+)
+
 type Manager struct {
 	players        []*characters.Player
 	maps           []*environments.Map
@@ -74,19 +78,11 @@ func (m *Manager) updateGame() {
 }
 
 func (m *Manager) getPlayerData() (locX, locY float64) {
-	locX, _ = m.CurrentGame.PlayerData["LocX"].(float64)
-	locY, _ = m.CurrentGame.PlayerData["LocY"].(float64)
-	_, exists := m.CurrentGame.PlayerData["Damage"]
-	if exists {
-		for _, mob := range m.currentMap.Enemies {
-			dmg, _ := m.CurrentGame.PlayerData["Damage"].(int)
-			if util.VectorsDistance(mob.LocX, mob.LocY, locX, locY) < 20 {
-				mob.HP -= dmg
-				fmt.Println(mob.HP)
-				break //only one mob
-			}
-		}
-	}
+	locX, _ = m.CurrentGame.PlayerDataToSend["LocX"].(float64)
+	locY, _ = m.CurrentGame.PlayerDataToSend["LocY"].(float64)
+	m.handlePlayerDamage(locX, locY)
+	m.handleLoot(locX, locY)
+
 	return locX, locY
 }
 
@@ -105,4 +101,36 @@ func (m *Manager) updateEnemies() {
 	}
 	m.currentMap.Enemies = mobs
 	m.CurrentGame.universalItems = m.universalItems
+}
+
+func (m *Manager) handleLoot(locX, locY float64) {
+	_, exists := m.CurrentGame.PlayerDataToSend["Loot"]
+	if exists {
+		slots, _ := m.CurrentGame.PlayerDataToSend["Loot"].(int)
+		var tempUniversalItems []*etc.Item
+		for _, item := range m.universalItems {
+			if util.VectorsDistance(locX, locY, item.LocX, item.LocY) < 60 &&
+				slots < MAX_BAG_SLOTS-1 {
+				m.CurrentGame.player.Bag = append(m.CurrentGame.player.Bag, item)
+				fmt.Println("Added.")
+			} else {
+				tempUniversalItems = append(tempUniversalItems, item)
+			}
+		}
+		m.universalItems = tempUniversalItems
+	}
+}
+
+func (m *Manager) handlePlayerDamage(locX, locY float64) {
+	_, exists := m.CurrentGame.PlayerDataToSend["Damage"]
+	if exists {
+		dmg, _ := m.CurrentGame.PlayerDataToSend["Damage"].(int)
+		for _, mob := range m.currentMap.Enemies {
+			if util.VectorsDistance(mob.LocX, mob.LocY, locX, locY) < 20 {
+				mob.HP -= dmg
+				fmt.Println(mob.HP)
+				break //only one mob
+			}
+		}
+	}
 }

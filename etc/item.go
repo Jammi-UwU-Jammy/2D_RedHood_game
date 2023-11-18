@@ -34,6 +34,7 @@ func NewRandomSword(initX, initY float64) *Item {
 type Item struct {
 	*Effect
 
+	Status   bool
 	Weight   int
 	Category int
 	Buffs    *Buff
