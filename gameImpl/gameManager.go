@@ -3,6 +3,7 @@ package gameImpl
 import (
 	"RedHood/characters"
 	"RedHood/environments"
+	"RedHood/etc"
 	"RedHood/util"
 	"fmt"
 	"sync"
@@ -10,8 +11,9 @@ import (
 )
 
 type Manager struct {
-	players []*characters.Player
-	maps    []*environments.Map
+	players        []*characters.Player
+	maps           []*environments.Map
+	universalItems []*etc.Item
 
 	//TODO: Below is for local running/testing
 	currentPlayer *characters.Player
@@ -71,9 +73,9 @@ func (m *Manager) updateGame() {
 
 }
 
-func (m *Manager) getPlayerData() {
-	locX, _ := m.CurrentGame.PlayerData["LocX"].(float64)
-	locY, _ := m.CurrentGame.PlayerData["LocY"].(float64)
+func (m *Manager) getPlayerData() (locX, locY float64) {
+	locX, _ = m.CurrentGame.PlayerData["LocX"].(float64)
+	locY, _ = m.CurrentGame.PlayerData["LocY"].(float64)
 	_, exists := m.CurrentGame.PlayerData["Damage"]
 	if exists {
 		for _, mob := range m.currentMap.Enemies {
@@ -85,10 +87,22 @@ func (m *Manager) getPlayerData() {
 			}
 		}
 	}
+	return locX, locY
 }
 
 func (m *Manager) updateEnemies() {
+	var mobs []*characters.Mob
 	for _, mob := range m.currentMap.Enemies {
-		mob.Update(m.currentPlayer)
+		if mob.HP > 0 {
+			mobs = append(mobs, mob)
+			damageFromMob := mob.Update(m.currentPlayer)
+			m.currentPlayer.HP -= damageFromMob
+		} else {
+			drop := etc.NewRandomSword(mob.LocX, mob.LocY)
+			m.universalItems = append(m.universalItems, drop)
+			//fmt.Printf("Item: X %.2f | Y %.2f \n", drop.LocX, drop.LocY)
+		}
 	}
+	m.currentMap.Enemies = mobs
+	m.CurrentGame.universalItems = m.universalItems
 }

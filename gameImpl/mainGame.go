@@ -3,6 +3,7 @@ package gameImpl
 import (
 	"RedHood/characters"
 	"RedHood/environments"
+	"RedHood/etc"
 	"fmt"
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
@@ -21,7 +22,8 @@ type Game struct {
 	enemies    []*characters.Mob
 	background *environments.Map
 
-	obstacles []*tiled.Object
+	obstacles      []*tiled.Object
+	universalItems []*etc.Item
 
 	//Field for Manager to access
 	PlayerData map[string]interface{}
@@ -61,8 +63,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("%d", g.player.HP))
 	g.player.Draw(screen)
 
+	g.DrawEtcItems(screen)
 	g.playerUI.Draw(screen)
 	//g.bagUI.Draw(screen)
+}
+
+func (g *Game) DrawEtcItems(screen *ebiten.Image) {
+	ops := ebiten.DrawImageOptions{}
+	for _, item := range g.universalItems {
+		ops.GeoM.Reset()
+		ops.GeoM.Translate(item.LocX, item.LocY)
+		screen.DrawImage(item.GetImage(), &ops)
+	}
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {

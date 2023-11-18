@@ -62,14 +62,19 @@ func NewEnemySkeleton() *Mob {
 	return &mob
 }
 
-func (m *Mob) Update(player *Player) {
+func (m *Mob) Update(player *Player) int {
 	m.CurrentImg = m.idleImages[(m.trackFrame-1)/IMG_PER_SEC]
-
 	m.stateUpdate(player.LocX, player.LocY)
+
+	outputDamage := 0
 
 	switch m.state {
 	case ATTACK_STATE:
 		m.maxFrame = len(m.atkImages)
+		if util.IsCDExceeded(0.5, m.lastCast) {
+			m.lastCast = time.Now()
+			outputDamage = 1
+		}
 		m.CurrentImg = m.atkImages[(m.trackFrame-1)/IMG_PER_SEC]
 	case WALK_STATE:
 		x, y := util.UnitVector(m.Velocity.X, m.Velocity.Y)
@@ -94,6 +99,7 @@ func (m *Mob) Update(player *Player) {
 		m.maxFrame = len(m.idleImages)
 		m.CurrentImg = m.idleImages[(m.trackFrame-1)/IMG_PER_SEC]
 	}
+	return outputDamage
 }
 
 func (m *Mob) stateUpdate(charLocX, charLocY float64) {

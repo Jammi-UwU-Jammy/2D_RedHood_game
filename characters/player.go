@@ -38,6 +38,7 @@ type Player struct {
 }
 
 func (p *Player) Update(obstacles []*tiled.Object) map[string]interface{} {
+
 	outputs := make(map[string]interface{})
 	oldX, oldY := p.LocX, p.LocY
 
@@ -62,11 +63,11 @@ func (p *Player) Update(obstacles []*tiled.Object) map[string]interface{} {
 		p.CurrentImg = p.runImages[(p.trackFrame-1)/IMG_PER_SEC]
 	case ebiten.IsKeyPressed(ebiten.KeyA):
 		p.maxFrame = len(p.atkImages)
-		p.CurrentImg = p.atkImages[(p.trackFrame-1)/IMG_PER_SEC]
-		if util.IsCDExceeded(0.4, p.lastCast) {
+		if util.IsCDExceeded(0.2, p.lastCast) {
 			p.lastCast = time.Now()
+			outputs["Damage"] = 10
 		}
-		outputs["Damage"] = 1
+		p.CurrentImg = p.atkImages[(p.trackFrame-1)/IMG_PER_SEC]
 	default:
 		p.maxFrame = len(p.idleImages)
 		p.CurrentImg = p.idleImages[(p.trackFrame-1)/IMG_PER_SEC]

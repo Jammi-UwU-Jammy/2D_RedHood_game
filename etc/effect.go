@@ -6,8 +6,24 @@ import (
 )
 
 type Effect struct {
-	image       *ebiten.Image
-	LocX, LocY  float64
+	CurrentImage *ebiten.Image
+	images       []*ebiten.Image
+	LocX, LocY   float64
+	trackFrame   int
+	maxFrame     int
+
 	Offset      util.Point
 	Destination util.Point
+}
+
+func NewEffect() {
+
+}
+
+func (e *Effect) Update() {
+
+}
+
+func (e *Effect) Draw() {
+
 }
