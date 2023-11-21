@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	STD_TILE_WIDTH = 32
-	tiledBG        = "assets/bground/default.tmx"
-	tiledObstacle  = "bground/default.tmx"
+	STD_TILE_WIDTH  = 32
+	defaultTiledMap = "assets/bground/default.tmx"
+	lakeTiledMap    = "assets/bground/forest.tmx"
 )
 
 type Map struct {
@@ -25,9 +25,9 @@ type Map struct {
 	Enemies []*characters.Mob
 }
 
-func NewDefaultBackground(enemies []*characters.Mob) *Map {
+func NewBackground(tmxPath string, enemies []*characters.Mob) *Map {
 	file := tiled.WithFileSystem(util.Assets)
-	bgMap, err := tiled.LoadFile(tiledBG, file)
+	bgMap, err := tiled.LoadFile(tmxPath, file)
 	util.CheckErrExit(100, err)
 
 	ops := &ebiten.DrawImageOptions{}
@@ -38,6 +38,16 @@ func NewDefaultBackground(enemies []*characters.Mob) *Map {
 	bg.Enemies = enemies
 
 	return &bg
+}
+
+func NewDefaultMap(enemies []*characters.Mob) *Map {
+	bg := NewBackground(defaultTiledMap, enemies)
+	return bg
+}
+
+func NewLakeMap(enemies []*characters.Mob) *Map {
+	bg := NewBackground(lakeTiledMap, enemies)
+	return bg
 }
 
 func (bg *Map) Update() {
@@ -51,11 +61,11 @@ func (bg *Map) PopulateMobs(mobs []*characters.Mob) {
 }
 
 func (bg *Map) Draw(screen *ebiten.Image) {
-	bg.rendALayer(0, screen)
 	bg.rendALayer(1, screen)
+	//bg.rendALayer(2, screen)
 
 	bg.renderMobs(screen)
-	//bg.rendALayer(2, screen)
+	bg.rendALayer(2, screen)
 }
 
 func (bg *Map) rendALayer(layer int, screen *ebiten.Image) {
@@ -70,7 +80,7 @@ func (bg *Map) rendALayer(layer int, screen *ebiten.Image) {
 			if tileToDraw.ID != 0 {
 				bgTileToDraw := bg.tiledHash[tileToDraw.ID]
 				var tileAdjustY float64 = 0
-				if layer == 1 {
+				if layer == 2 {
 					tileAdjustY = float64(bgTileToDraw.Bounds().Dy()) - STD_TILE_WIDTH
 				}
 				bg.ops.GeoM.Translate(TileXpos, TileYpos-tileAdjustY) //-tileAdjustY

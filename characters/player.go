@@ -40,7 +40,7 @@ type Player struct {
 	equipped []*etc.Item
 }
 
-func (p *Player) Update(obstacles []*tiled.Object) map[string]interface{} {
+func (p *Player) Update(blockedTiles *tiled.Map, obj []*tiled.Object) map[string]interface{} {
 
 	outputs := make(map[string]interface{})
 	oldX, oldY := p.LocX, p.LocY
@@ -78,10 +78,14 @@ func (p *Player) Update(obstacles []*tiled.Object) map[string]interface{} {
 		p.CurrentImg = p.idleImages[(p.trackFrame-1)/IMG_PER_SEC]
 	}
 	p.Velocity.X, p.Velocity.Y = p.LocX-oldX, p.LocY-oldY
-	if p.collisionVSBG(obstacles) {
+	if p.collisionVSBG(blockedTiles) {
 		p.LocX -= p.Velocity.X
 		p.LocY -= p.Velocity.Y
 		//fmt.Println("Collided")
+	}
+	is, id := p.CollisionVSObjects(obj)
+	if is {
+		outputs["Map"] = id
 	}
 	outputs["LocX"], outputs["LocY"] = p.LocX, p.LocY
 

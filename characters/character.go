@@ -1,7 +1,6 @@
 package characters
 
 import (
-	//"RedHood/environments"
 	"RedHood/util"
 	"github.com/co0p/tankism/lib/collision"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -73,7 +72,7 @@ func (c *Character) GetBoundingBox() collision.BoundingBox {
 	}
 }
 
-func (c *Character) collisionVSBG(obstacles []*tiled.Object) bool {
+func (c *Character) CollisionVSObjects(obstacles []*tiled.Object) (bool, uint32) {
 	for _, obs := range obstacles {
 		box := collision.BoundingBox{
 			X:      obs.X,
@@ -85,8 +84,19 @@ func (c *Character) collisionVSBG(obstacles []*tiled.Object) bool {
 			//fmt.Println(obs.X, " : ", obs.Y)
 			//fmt.Println("Collided with an obstacle: ", obs.ID)
 			//fmt.Println(c.LocX, " : ", c.LocY)
-			return true
+			return true, obs.ID
 		}
+	}
+	return false, 1
+}
+
+func (c *Character) collisionVSBG(tiledMap *tiled.Map) bool {
+	tileX := int(c.LocX) / tiledMap.TileWidth
+	tileY := int(c.LocY)/tiledMap.TileHeight + 1
+
+	tileToDraw := tiledMap.Layers[0].Tiles[tileY*tiledMap.Width+tileX]
+	if tileToDraw.ID != 0 {
+		return true
 	}
 	return false
 }

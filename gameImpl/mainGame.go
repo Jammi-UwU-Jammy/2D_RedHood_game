@@ -22,7 +22,7 @@ type Game struct {
 	enemies    []*characters.Mob
 	background *environments.Map
 
-	obstacles      []*tiled.Object
+	portals        []*tiled.Object
 	universalItems []*etc.Item
 
 	//Field for Manager to access
@@ -40,7 +40,7 @@ func NewGame(player *characters.Player, gameMap *environments.Map) *Game {
 	game.playerUI = environments.NewPlayerUI()
 
 	game.background = gameMap
-	game.obstacles = game.background.TiledMap.ObjectGroups[0].Objects
+	game.portals = game.background.TiledMap.ObjectGroups[0].Objects
 	game.enemies = game.background.Enemies
 	game.PlayerDataToSend = make(map[string]interface{})
 
@@ -50,7 +50,7 @@ func NewGame(player *characters.Player, gameMap *environments.Map) *Game {
 func (g *Game) Update() error {
 
 	g.background.Update()
-	g.PlayerDataToSend = g.player.Update(g.obstacles)
+	g.PlayerDataToSend = g.player.Update(g.background.TiledMap, g.portals)
 
 	g.playerUI.HP.Configure(widget.ProgressBarOpts.Values(0, 100, g.player.HP))
 	g.playerUI.Update()
@@ -93,3 +93,10 @@ func (g *Game) DrawEtcItems(screen *ebiten.Image) {
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return outsideWidth, outsideHeight
 }
+
+//func (g *Game) CheckMap(){
+//	is, id := g.player.CollisionVSObjects(g.portals)
+//	if is{
+//
+//	}
+//}

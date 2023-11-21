@@ -46,7 +46,10 @@ func (m *Manager) spawnPlayer() {
 		mobs = append(mobs, mob1, mob2)
 	}
 	m.currentPlayer = player
-	m.currentMap = environments.NewDefaultBackground(mobs)
+	m.currentMap = environments.NewDefaultMap(mobs)
+
+	m.maps = append(m.maps, m.currentMap)
+	m.maps = append(m.maps, environments.NewLakeMap(mobs))
 }
 
 func (m *Manager) Start() {
@@ -82,6 +85,7 @@ func (m *Manager) getPlayerData() (locX, locY float64) {
 	locY, _ = m.CurrentGame.PlayerDataToSend["LocY"].(float64)
 	m.handlePlayerDamage(locX, locY)
 	m.handleLoot(locX, locY)
+	m.handlePortal()
 
 	return locX, locY
 }
@@ -101,6 +105,33 @@ func (m *Manager) updateEnemies() {
 	}
 	m.currentMap.Enemies = mobs
 	m.CurrentGame.universalItems = m.universalItems
+}
+
+func (m *Manager) UpdateMap(mapID int) {
+	m.currentMap = m.maps[mapID]
+	m.CurrentGame.background = m.currentMap
+	m.CurrentGame.portals = m.CurrentGame.background.TiledMap.ObjectGroups[0].Objects
+}
+
+func (m *Manager) handlePortal() {
+	_, exists := m.CurrentGame.PlayerDataToSend["Map"]
+	if exists {
+		id, _ := m.CurrentGame.PlayerDataToSend["Map"].(uint32)
+		fmt.Println(id)
+		if id == 60 {
+			m.UpdateMap(0)
+			m.currentPlayer.LocX = m.CurrentGame.portals[0].X - 50
+			m.currentPlayer.LocY = m.CurrentGame.portals[0].Y
+		} else if id == 135 {
+			m.UpdateMap(1)
+			m.currentPlayer.LocX = m.CurrentGame.portals[0].X + 100
+			m.currentPlayer.LocY = m.CurrentGame.portals[0].Y
+		} else if id == 136 {
+			if m.currentPlayer.HP < 100 {
+				m.currentPlayer.HP += 1
+			}
+		}
+	}
 }
 
 func (m *Manager) handleLoot(locX, locY float64) {
