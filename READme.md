@@ -24,7 +24,7 @@ Jam Clark
     <li>Enemies can't move past blocked objects, but can if they see the player. Maybe I'll fix it when I use the AI instead. </li>
     <li>Mages and Samurais' heights are much larger than character's, so it seems like they stand below the player. 
         But they share the same Draw() so I don't want to put in extra work to correct all types of enemies.</li>
-    <li>Jumping repeats the sound too fast. It was almost due and I haven't eaten.</li>
+    <li>Jumping repeats the sound too fast. Due today & gI haven't eaten.</li>
     <li>Samurais don't have death animations. They weren't in the package.</li>
     <li>Can only equip and not unequip.</li>
     <li>There is no handle for character's death. It wasn't required.</li>
