@@ -5,6 +5,8 @@
 where the last state left off.
 5. The universal items should have an ID that identifies whom it belongs to, therefore decides who to loot.
 6. The map change should contain data as in form of map[mapID]Map and not 2 hardcoded maps.
+7. Enemies are currently the same for both maps
+
 
 Game server -> Does game logic including map loading, collisions, monster's movements, etc.
 Client -> receive environments data, render game on local machine, send player's data to server

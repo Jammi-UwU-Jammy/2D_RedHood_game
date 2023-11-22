@@ -20,6 +20,10 @@ const (
 	SKE_IDLE_IMAGES_URI = "enemies/skeleton/images/idle.png"
 	SKE_RUN_IMAGES_URI  = "enemies/skeleton/images/walk.png"
 	SKE_CAST_IMAGES_URI = "enemies/skeleton/images/atk.png"
+
+	SMR_IDLE_IMAGES_URI = "enemies/samurai/IDLE.png"
+	SMR_RUN_IMAGES_URI  = "enemies/samurai/RUN.png"
+	SMR_ATK_IMAGES_URI  = "enemies/samurai/BASIC ATTACK.png"
 )
 
 type Mob struct {
@@ -58,6 +62,22 @@ func NewEnemySkeleton() *Mob {
 	mob.runImages = mob.loadImageAssets(SKE_RUN_IMAGES_URI, util.Point{X: 0, Y: 0}, 22, 33)
 	mob.atkImages = mob.loadImageAssets(SKE_CAST_IMAGES_URI, util.Point{X: 0, Y: 0}, 43, 37)
 
+	mob.CurrentImg = mob.idleImages[0]
+	return &mob
+}
+
+func NewSamurai() *Mob {
+	character := &Character{
+		LocX: 1000 + rand.Float64()*400 - 200, LocY: 200 + rand.Float64()*400 - 200,
+		HP:       100,
+		facing:   1,
+		lastCast: time.Now(),
+		Velocity: util.Vector{X: 0, Y: 0}}
+	mob := Mob{Character: character}
+
+	mob.idleImages = mob.loadImageAssets(SMR_IDLE_IMAGES_URI, util.Point{X: 0, Y: 0}, 158, 125)
+	mob.runImages = mob.loadImageAssets(SMR_RUN_IMAGES_URI, util.Point{X: 0, Y: 0}, 158, 125)
+	mob.atkImages = mob.loadImageAssets(SMR_ATK_IMAGES_URI, util.Point{X: 0, Y: 0}, 158, 125)
 	mob.CurrentImg = mob.idleImages[0]
 	return &mob
 }

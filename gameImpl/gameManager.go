@@ -40,17 +40,21 @@ func (m *Manager) PopulateResources() {
 func (m *Manager) spawnPlayer() {
 	player := characters.NewPlayer()
 	m.players = append(m.players, player)
-	var mobs []*characters.Mob
+	var mobs1, mobs2 []*characters.Mob
 	for i := 0; i < 5; i++ {
 		mob1 := characters.NewEnemyMage()
 		mob2 := characters.NewEnemySkeleton()
-		mobs = append(mobs, mob1, mob2)
+		mobs1 = append(mobs1, mob1, mob2)
+	}
+	for i := 0; i < 8; i++ {
+		mob := characters.NewSamurai()
+		mobs2 = append(mobs2, mob)
 	}
 	m.currentPlayer = player
-	m.currentMap = environments.NewDefaultMap(mobs)
+	m.currentMap = environments.NewDefaultMap(mobs1)
 
 	m.maps = append(m.maps, m.currentMap)
-	m.maps = append(m.maps, environments.NewLakeMap(mobs))
+	m.maps = append(m.maps, environments.NewLakeMap(mobs2))
 }
 
 func (m *Manager) Start() {
@@ -115,6 +119,7 @@ func (m *Manager) updateEnemies() {
 func (m *Manager) UpdateMap(mapID int) {
 	m.currentMap = m.maps[mapID]
 	m.CurrentGame.background = m.currentMap
+	//fmt.Println(len(m.currentMap.Enemies))
 	m.CurrentGame.portals = m.CurrentGame.background.TiledMap.ObjectGroups[0].Objects
 }
 

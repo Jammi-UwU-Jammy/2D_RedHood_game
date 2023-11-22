@@ -94,5 +94,6 @@ func (bg *Map) rendALayer(layer int, screen *ebiten.Image) {
 func (bg *Map) renderMobs(screen *ebiten.Image) {
 	for _, mob := range bg.Enemies {
 		mob.Draw(screen)
+		//fmt.Println()
 	}
 }
