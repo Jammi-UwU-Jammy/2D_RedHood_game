@@ -92,18 +92,14 @@ func NewQuestUI() *ebitenui.UI {
 			widget.RowLayoutOpts.Spacing(20),
 		)),
 	)
-	window := NewPopUpWindow("QUEST", container)
-	window.SetLocation(image.Rect(1300, 200, 1500, 300))
 	ui := ebitenui.UI{Container: container}
-	ui.AddWindow(window)
 	return &ui
 }
 
 func CreateAQuest(label, content string, container *widget.Container) {
 	questLabel := widget.NewLabel(
 		widget.LabelOpts.Text(label, loadFont(20), &widget.LabelColor{
-			Idle:     color.White,
-			Disabled: color.NRGBA{100, 100, 100, 255},
+			Idle: color.NRGBA{100, 170, 240, 255},
 		}),
 		widget.LabelOpts.TextOpts(
 			widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
@@ -182,8 +178,8 @@ func NewButton(label string, ui *ebitenui.UI, window *widget.Window) *widget.But
 			}),
 		),
 		widget.ButtonOpts.Image(loadButtonImage()),
-		widget.ButtonOpts.Text(label, loadFont(12), &widget.ButtonTextColor{
-			Idle: color.NRGBA{0xdf, 0xf4, 0xff, 0xff},
+		widget.ButtonOpts.Text(label, loadFont(15), &widget.ButtonTextColor{
+			Idle: color.NRGBA{105, 65, 185, 255},
 		}),
 		widget.ButtonOpts.TextPadding(widget.Insets{
 			Left:   30,
@@ -192,11 +188,11 @@ func NewButton(label string, ui *ebitenui.UI, window *widget.Window) *widget.But
 			Bottom: 5,
 		}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			window.SetLocation(image.Rect(500, 500, 750, 750))
+			window.SetLocation(image.Rect(1300, 500, 1550, 750))
 			ui.AddWindow(window)
 		}),
 	)
-	button.SetLocation(image.Rect(100, 100, 150, 150))
+	button.SetLocation(image.Rect(1400, 200, 1500, 250))
 	return button
 }
 

@@ -100,9 +100,8 @@ func (g *Game) UpdateQuests() {
 	for _, it := range g.quests {
 		q := it
 		if q.Conditions() != true {
-			environments.CreateAQuest(q.Description, q.Description, g.QuestUI.Container)
+			environments.CreateAQuest(q.Title, q.Description, g.QuestUI.Container)
 		}
-		fmt.Println(q.Conditions())
 	}
 }
 
@@ -121,12 +120,13 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 
 func (g *Game) PopulateQuests() {
 	q := etc.Quest{
-		Description: "Play for more than 20s.",
-		Conditions:  nil,
-		Created:     time.Now(),
+		Title:      "Play for more than 10s.",
+		Conditions: nil,
+		Created:    time.Now(),
 	}
 	cond := func() bool {
-		if util.IsCDExceeded(5, q.Created) {
+		q.Description = fmt.Sprintf("Playing: %.f/%ds", time.Since(q.Created).Seconds(), 10)
+		if util.IsCDExceeded(10, q.Created) {
 			return true
 		}
 		return false
@@ -134,12 +134,13 @@ func (g *Game) PopulateQuests() {
 	q.Conditions = cond
 
 	q1 := etc.Quest{
-		Description: "Loot an item.",
+		Title:       "Loot 3 item.",
+		Description: "",
 		Conditions:  nil,
-		Created:     time.Now(),
 	}
 	cond1 := func() bool {
-		if len(g.player.Bag) > 0 {
+		q1.Description = fmt.Sprintf("Items looted: %d/%d", len(g.player.Bag), 3)
+		if len(g.player.Bag) >= 3 {
 			return true
 		}
 		return false
