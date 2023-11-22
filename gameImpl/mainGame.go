@@ -10,9 +10,17 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	_ "github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/lafriks/go-tiled"
 	"time"
+)
+
+const (
+	SFX_PORTAL     = "player/sfx/Retro Blop StereoUP 04.wav"
+	SFX_HEAL       = "player/sfx/Retro Charge Magic 11.wav"
+	SFX_EQUIP      = "player/sfx/Retro Beeep 20.wav"
+	SFX_QUESTCOMPL = "player/sfx/Retro PowerUP StereoUP 05.wav"
 )
 
 type Game struct {
@@ -27,6 +35,11 @@ type Game struct {
 	portals        []*tiled.Object
 	universalItems []*etc.Item
 	quests         []*etc.Quest
+
+	portalSound *audio.Player
+	healSound   *audio.Player
+	equipSound  *audio.Player
+	questSound  *audio.Player
 
 	//Field for Manager to access
 	PlayerDataToSend map[string]interface{}
@@ -43,6 +56,8 @@ func NewGame(player *characters.Player, gameMap *environments.Map) *Game {
 	game.playerUI = environments.NewPlayerUI()
 	game.QuestUI = environments.NewQuestUI()
 
+	game.loadEnvironmentSound()
+	game.PopulateQuests()
 	game.background = gameMap
 	game.portals = game.background.TiledMap.ObjectGroups[0].Objects
 	game.enemies = game.background.Enemies
@@ -88,6 +103,7 @@ func (g *Game) UpdateBag() {
 					//TODO: add attributes
 					fmt.Println(listenedItem.Buffs.HP, listenedItem.Buffs.ATK)
 					g.player.EquipItem(listenedItem)
+					util.PlaySound(g.equipSound)
 				}),
 			),
 		)
@@ -97,12 +113,15 @@ func (g *Game) UpdateBag() {
 
 func (g *Game) UpdateQuests() {
 	g.QuestUI.Container.RemoveChildren()
+	var tempQuest []*etc.Quest
 	for _, it := range g.quests {
 		q := it
 		if q.Conditions() != true {
 			environments.CreateAQuest(q.Title, q.Description, g.QuestUI.Container)
+			tempQuest = append(tempQuest, q)
 		}
 	}
+	g.quests = tempQuest
 }
 
 func (g *Game) DrawEtcItems(screen *ebiten.Image) {
@@ -118,6 +137,13 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 	return outsideWidth, outsideHeight
 }
 
+func (g *Game) loadEnvironmentSound() {
+	g.healSound = util.LoadEmbededSound(SFX_HEAL, 320)
+	g.equipSound = util.LoadEmbededSound(SFX_EQUIP, 321)
+	g.questSound = util.LoadEmbededSound(SFX_QUESTCOMPL, 322)
+	g.portalSound = util.LoadEmbededSound(SFX_PORTAL, 323)
+}
+
 func (g *Game) PopulateQuests() {
 	q := etc.Quest{
 		Title:      "Play for more than 10s.",
@@ -127,6 +153,7 @@ func (g *Game) PopulateQuests() {
 	cond := func() bool {
 		q.Description = fmt.Sprintf("Playing: %.f/%ds", time.Since(q.Created).Seconds(), 10)
 		if util.IsCDExceeded(10, q.Created) {
+			util.PlaySound(g.questSound)
 			return true
 		}
 		return false
@@ -141,6 +168,7 @@ func (g *Game) PopulateQuests() {
 	cond1 := func() bool {
 		q1.Description = fmt.Sprintf("Items looted: %d/%d", len(g.player.Bag), 3)
 		if len(g.player.Bag) >= 3 {
+			util.PlaySound(g.questSound)
 			return true
 		}
 		return false

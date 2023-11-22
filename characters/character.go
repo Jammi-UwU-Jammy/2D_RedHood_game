@@ -4,6 +4,7 @@ import (
 	"RedHood/util"
 	"github.com/co0p/tankism/lib/collision"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/lafriks/go-tiled"
 	"image"
 	"time"
@@ -56,6 +57,10 @@ func (c *Character) loadImageAssets(uri string, offset util.Point, width, height
 	return pool
 }
 
+func (c *Character) loadSoundAssets(uri string) *audio.Player {
+	return util.LoadEmbededSound(uri, 302)
+}
+
 func (c *Character) Draw(screen *ebiten.Image) {
 	if c.trackFrame >= len(c.idleImages)*IMG_PER_SEC {
 		c.trackFrame = 1
@@ -75,8 +80,8 @@ func (c *Character) GetBoundingBox() collision.BoundingBox {
 	return collision.BoundingBox{
 		X:      c.LocX,
 		Y:      c.LocY,
-		Width:  10,
-		Height: 10,
+		Width:  20,
+		Height: 20,
 	}
 }
 

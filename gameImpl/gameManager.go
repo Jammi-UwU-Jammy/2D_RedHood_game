@@ -34,7 +34,7 @@ func (m *Manager) PopulateResources() {
 
 	m.spawnPlayer()
 	m.CurrentGame = NewGame(m.currentPlayer, m.currentMap)
-	m.CurrentGame.PopulateQuests()
+	//m.CurrentGame.PopulateQuests()
 }
 
 func (m *Manager) spawnPlayer() {
@@ -127,13 +127,16 @@ func (m *Manager) handlePortal() {
 			m.UpdateMap(0)
 			m.currentPlayer.LocX = m.CurrentGame.portals[0].X - 50
 			m.currentPlayer.LocY = m.CurrentGame.portals[0].Y
+			util.PlaySound(m.CurrentGame.portalSound)
 		} else if id == 135 {
 			m.UpdateMap(1)
 			m.currentPlayer.LocX = m.CurrentGame.portals[0].X + 100
 			m.currentPlayer.LocY = m.CurrentGame.portals[0].Y
+			util.PlaySound(m.CurrentGame.portalSound)
 		} else if id == 136 {
-			if m.currentPlayer.HP < 100 {
+			if m.currentPlayer.HP < m.currentPlayer.MaxStat.HP {
 				m.currentPlayer.HP += 1
+				util.PlaySound(m.CurrentGame.healSound)
 			}
 		}
 	}

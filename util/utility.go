@@ -6,6 +6,7 @@ import (
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/hajimehoshi/ebiten/v2/audio/wav"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/lafriks/go-tiled"
 	"golang.org/x/mobile/asset"
@@ -30,10 +31,22 @@ func LoadEmbeddedImage(filePath string, errCode int) *ebiten.Image {
 	return ebitenImage
 }
 
-func LoadEmbededSound(filePath string, errCode int) asset.File {
+func LoadEmbededSound(filePath string, errCode int) *audio.Player {
 	embededFile, err := asset.Open(filePath)
 	CheckErrExit(errCode, err)
-	return embededFile
+
+	stream, err := wav.Decode(SfxContext, embededFile)
+	CheckErrExit(11, err)
+	sound, err := audio.NewPlayer(SfxContext, stream)
+	CheckErrExit(12, err)
+	return sound
+}
+
+func PlaySound(s *audio.Player) {
+	if !s.IsPlaying() {
+		s.Rewind()
+		s.Play()
+	}
 }
 
 func MakeEImagesFromMap(tiledMap tiled.Map) map[uint32]*ebiten.Image {
