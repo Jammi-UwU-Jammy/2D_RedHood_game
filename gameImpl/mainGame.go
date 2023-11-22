@@ -6,15 +6,17 @@ import (
 	"RedHood/etc"
 	"RedHood/util"
 	"fmt"
+	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	_ "github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/lafriks/go-tiled"
+	"time"
 )
 
 type Game struct {
-	//bagUI    *ebitenui.UI
+	QuestUI  *ebitenui.UI
 	playerUI *environments.PlayerUI
 
 	screen     *ebiten.Image
@@ -24,6 +26,7 @@ type Game struct {
 
 	portals        []*tiled.Object
 	universalItems []*etc.Item
+	quests         []*etc.Quest
 
 	//Field for Manager to access
 	PlayerDataToSend map[string]interface{}
@@ -36,8 +39,9 @@ func NewGame(player *characters.Player, gameMap *environments.Map) *Game {
 	game := Game{}
 
 	game.player = player
-	//game.bagUI = environments.NewGridContainer(9)
+	//game.QuestUI = environments.NewGridContainer(9)
 	game.playerUI = environments.NewPlayerUI()
+	game.QuestUI = environments.NewQuestUI()
 
 	game.background = gameMap
 	game.portals = game.background.TiledMap.ObjectGroups[0].Objects
@@ -55,6 +59,7 @@ func (g *Game) Update() error {
 	g.playerUI.HP.Configure(widget.ProgressBarOpts.Values(0, g.player.MaxStat.HP, g.player.HP))
 	g.playerUI.Update()
 	g.UpdateBag()
+	g.UpdateQuests()
 	return nil
 }
 
@@ -66,7 +71,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	g.DrawEtcItems(screen)
 	g.playerUI.Draw(screen)
-	//g.bagUI.Draw(screen)
+	g.QuestUI.Draw(screen)
 }
 
 func (g *Game) UpdateBag() {
@@ -90,6 +95,17 @@ func (g *Game) UpdateBag() {
 	}
 }
 
+func (g *Game) UpdateQuests() {
+	g.QuestUI.Container.RemoveChildren()
+	for _, it := range g.quests {
+		q := it
+		if q.Conditions() != true {
+			environments.CreateAQuest(q.Description, q.Description, g.QuestUI.Container)
+		}
+		fmt.Println(q.Conditions())
+	}
+}
+
 func (g *Game) DrawEtcItems(screen *ebiten.Image) {
 	ops := ebiten.DrawImageOptions{}
 	for _, item := range g.universalItems {
@@ -103,9 +119,31 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 	return outsideWidth, outsideHeight
 }
 
-//func (g *Game) CheckMap(){
-//	is, id := g.player.CollisionVSObjects(g.portals)
-//	if is{
-//
-//	}
-//}
+func (g *Game) PopulateQuests() {
+	q := etc.Quest{
+		Description: "Play for more than 20s.",
+		Conditions:  nil,
+		Created:     time.Now(),
+	}
+	cond := func() bool {
+		if util.IsCDExceeded(5, q.Created) {
+			return true
+		}
+		return false
+	}
+	q.Conditions = cond
+
+	q1 := etc.Quest{
+		Description: "Loot an item.",
+		Conditions:  nil,
+		Created:     time.Now(),
+	}
+	cond1 := func() bool {
+		if len(g.player.Bag) > 0 {
+			return true
+		}
+		return false
+	}
+	q1.Conditions = cond1
+	g.quests = append(g.quests, &q, &q1)
+}

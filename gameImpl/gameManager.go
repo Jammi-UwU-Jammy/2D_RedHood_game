@@ -19,7 +19,7 @@ type Manager struct {
 	maps           []*environments.Map
 	universalItems []*etc.Item
 
-	//TODO: Below is for local running/testing
+	//TODO: Below is for running/testing
 	currentPlayer *characters.Player
 	CurrentGame   *Game
 	currentMap    *environments.Map
@@ -34,6 +34,7 @@ func (m *Manager) PopulateResources() {
 
 	m.spawnPlayer()
 	m.CurrentGame = NewGame(m.currentPlayer, m.currentMap)
+	m.CurrentGame.PopulateQuests()
 }
 
 func (m *Manager) spawnPlayer() {
