@@ -80,6 +80,7 @@ func (m *Manager) updateGame() {
 	if m.CurrentGame != nil {
 		m.getPlayerData()
 		m.updateEnemies()
+		m.updateEffects()
 	}
 	time.Sleep(17 * time.Millisecond)
 
@@ -109,11 +110,24 @@ func (m *Manager) updateEnemies() {
 		} else {
 			drop := etc.NewRandomSword(mob.LocX, mob.LocY)
 			m.universalItems = append(m.universalItems, drop)
+			mobExit := etc.NewLastingEffect(mob.ExitImages, mob.LocX, mob.LocY, mob.Facing)
+			m.CurrentGame.effects = append(m.CurrentGame.effects, mobExit)
 			//fmt.Printf("Item: X %.2f | Y %.2f \n", drop.LocX, drop.LocY)
 		}
 	}
 	m.currentMap.Enemies = mobs
 	m.CurrentGame.universalItems = m.universalItems
+}
+
+func (m *Manager) updateEffects() {
+	var tempEffects []*etc.Effect
+	for _, e := range m.CurrentGame.effects {
+		if !e.IsDone {
+			e.Update()
+			tempEffects = append(tempEffects, e)
+		}
+	}
+	m.CurrentGame.effects = tempEffects
 }
 
 func (m *Manager) UpdateMap(mapID int) {

@@ -12,18 +12,22 @@ const (
 	WALK_STATE //walk state has to be below idle state
 	RUN_STATE
 	ATTACK_STATE
+	EXIT_STATE
 
 	MAGE_IDLE_IMAGES_URI = "enemies/mage/images/Idle.png"
 	MAGE_RUN_IMAGES_URI  = "enemies/mage/images/Run.png"
 	MAGE_CAST_IMAGES_URI = "enemies/mage/images/Attack1.png"
+	MAGE_EXIT_IMAGES_URI = "enemies/mage/images/Death.png"
 
 	SKE_IDLE_IMAGES_URI = "enemies/skeleton/images/idle.png"
 	SKE_RUN_IMAGES_URI  = "enemies/skeleton/images/walk.png"
 	SKE_CAST_IMAGES_URI = "enemies/skeleton/images/atk.png"
+	SKE_EXIT_IMAGES_URI = "enemies/skeleton/images/Skeleton Dead.png"
 
 	SMR_IDLE_IMAGES_URI = "enemies/samurai/IDLE.png"
 	SMR_RUN_IMAGES_URI  = "enemies/samurai/RUN.png"
 	SMR_ATK_IMAGES_URI  = "enemies/samurai/BASIC ATTACK.png"
+	SMR_EXIT_IMAGES_URI = "NON-AVAILABLE"
 )
 
 type Mob struct {
@@ -35,7 +39,7 @@ func NewEnemyMage() *Mob {
 	character := &Character{
 		LocX: 800 + rand.Float64()*400 - 200, LocY: 450 + rand.Float64()*400 - 200,
 		HP:       150,
-		facing:   1,
+		Facing:   1,
 		lastCast: time.Now(),
 		Velocity: util.Vector{X: 0, Y: 0}}
 	mob := Mob{Character: character}
@@ -43,6 +47,7 @@ func NewEnemyMage() *Mob {
 	mob.idleImages = mob.loadImageAssets(MAGE_IDLE_IMAGES_URI, util.Point{X: 0, Y: 0}, 250, 250)
 	mob.runImages = mob.loadImageAssets(MAGE_RUN_IMAGES_URI, util.Point{X: 0, Y: 0}, 250, 250)
 	mob.atkImages = mob.loadImageAssets(MAGE_CAST_IMAGES_URI, util.Point{X: 0, Y: 0}, 250, 250)
+	mob.ExitImages = mob.loadImageAssets(MAGE_EXIT_IMAGES_URI, util.Point{X: 0, Y: 0}, 250, 250)
 
 	mob.CurrentImg = mob.idleImages[0]
 	mob.maxFrame = len(mob.idleImages)
@@ -53,7 +58,7 @@ func NewEnemySkeleton() *Mob {
 	character := &Character{
 		LocX: 800 + rand.Float64()*400 - 200, LocY: 450 + rand.Float64()*400 - 200,
 		HP:       50,
-		facing:   1,
+		Facing:   1,
 		lastCast: time.Now(),
 		Velocity: util.Vector{X: 0, Y: 0}}
 	mob := Mob{Character: character}
@@ -61,6 +66,7 @@ func NewEnemySkeleton() *Mob {
 	mob.idleImages = mob.loadImageAssets(SKE_IDLE_IMAGES_URI, util.Point{X: 0, Y: 0}, 24, 32)
 	mob.runImages = mob.loadImageAssets(SKE_RUN_IMAGES_URI, util.Point{X: 0, Y: 0}, 22, 33)
 	mob.atkImages = mob.loadImageAssets(SKE_CAST_IMAGES_URI, util.Point{X: 0, Y: 0}, 43, 37)
+	mob.ExitImages = mob.loadImageAssets(SKE_EXIT_IMAGES_URI, util.Point{X: 0, Y: 0}, 33, 32)
 
 	mob.CurrentImg = mob.idleImages[0]
 	return &mob
@@ -70,7 +76,7 @@ func NewSamurai() *Mob {
 	character := &Character{
 		LocX: 1000 + rand.Float64()*400 - 200, LocY: 200 + rand.Float64()*400 - 200,
 		HP:       100,
-		facing:   1,
+		Facing:   1,
 		lastCast: time.Now(),
 		Velocity: util.Vector{X: 0, Y: 0}}
 	mob := Mob{Character: character}
@@ -78,6 +84,7 @@ func NewSamurai() *Mob {
 	mob.idleImages = mob.loadImageAssets(SMR_IDLE_IMAGES_URI, util.Point{X: 0, Y: 0}, 158, 125)
 	mob.runImages = mob.loadImageAssets(SMR_RUN_IMAGES_URI, util.Point{X: 0, Y: 0}, 158, 125)
 	mob.atkImages = mob.loadImageAssets(SMR_ATK_IMAGES_URI, util.Point{X: 0, Y: 0}, 158, 125)
+	mob.ExitImages = mob.idleImages
 	mob.CurrentImg = mob.idleImages[0]
 	return &mob
 }
@@ -102,16 +109,19 @@ func (m *Mob) Update(player *Player) int {
 		m.LocY += y
 		m.Velocity.X *= 0.95
 		m.Velocity.Y *= 0.95
-		m.facing = int(m.Velocity.X / math.Abs(m.Velocity.X))
+		m.Facing = int(m.Velocity.X / math.Abs(m.Velocity.X))
 		m.maxFrame = len(m.runImages)
 		m.CurrentImg = m.runImages[(m.trackFrame-1)/IMG_PER_SEC]
 	case RUN_STATE:
 		x, y := util.UnitVectorFromTwoPoints(m.LocX, m.LocY, player.LocX, player.LocY)
 		m.LocX += x
 		m.LocY += y
-		m.facing = int(x / math.Abs(x))
+		m.Facing = int(x / math.Abs(x))
 		m.maxFrame = len(m.runImages)
 		m.CurrentImg = m.runImages[(m.trackFrame-1)/IMG_PER_SEC]
+	case EXIT_STATE:
+		m.maxFrame = len(m.runImages)
+		m.CurrentImg = m.ExitImages[(m.trackFrame-1)/IMG_PER_SEC]
 	default:
 		if util.VectorLength(m.Velocity.X, m.Velocity.Y) < 0.01 && rand.Intn(1000) < 3 {
 			m.Velocity.X, m.Velocity.Y = rand.Float64()*5-2, rand.Float64()*5-2
@@ -124,6 +134,10 @@ func (m *Mob) Update(player *Player) int {
 
 func (m *Mob) stateUpdate(charLocX, charLocY float64) {
 	distance := util.VectorsDistance(m.LocX, m.LocY, charLocX, charLocY)
+	if m.HP <= 0 {
+		m.state = EXIT_STATE
+		return
+	}
 	if distance < 100 && distance > 20 {
 		m.state = RUN_STATE
 	} else if distance <= 20 {

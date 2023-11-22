@@ -24,7 +24,7 @@ type Character struct {
 	idleImages []*ebiten.Image
 	runImages  []*ebiten.Image
 	atkImages  []*ebiten.Image
-	exitImages []*ebiten.Image
+	ExitImages []*ebiten.Image
 
 	MaxStat *MaxStat
 	HP      int
@@ -37,7 +37,7 @@ type Character struct {
 	LocX     float64
 	LocY     float64
 	Velocity util.Vector
-	facing   int
+	Facing   int
 	lastCast time.Time
 
 	*collision.BoundingBox
@@ -68,9 +68,9 @@ func (c *Character) Draw(screen *ebiten.Image) {
 		c.trackFrame += 1
 	}
 	drawOps := ebiten.DrawImageOptions{}
-	distanceErr := float64(c.CurrentImg.Bounds().Dx() * c.facing)
+	distanceErr := float64(c.CurrentImg.Bounds().Dx() * c.Facing)
 
-	drawOps.GeoM.Scale(float64(c.facing), 1)
+	drawOps.GeoM.Scale(float64(c.Facing), 1)
 	drawOps.GeoM.Translate(c.LocX-distanceErr/2.2, c.LocY)
 	screen.DrawImage(c.CurrentImg, &drawOps)
 

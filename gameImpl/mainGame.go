@@ -35,6 +35,7 @@ type Game struct {
 	portals        []*tiled.Object
 	universalItems []*etc.Item
 	quests         []*etc.Quest
+	effects        []*etc.Effect
 
 	portalSound *audio.Player
 	healSound   *audio.Player
@@ -85,6 +86,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.player.Draw(screen)
 
 	g.DrawEtcItems(screen)
+	g.DrawEffects(screen)
 	g.playerUI.Draw(screen)
 	g.QuestUI.Draw(screen)
 }
@@ -130,6 +132,12 @@ func (g *Game) DrawEtcItems(screen *ebiten.Image) {
 		ops.GeoM.Reset()
 		ops.GeoM.Translate(item.LocX, item.LocY)
 		screen.DrawImage(item.GetImage(), &ops)
+	}
+}
+
+func (g *Game) DrawEffects(sc *ebiten.Image) {
+	for _, e := range g.effects {
+		e.Draw(sc)
 	}
 }
 

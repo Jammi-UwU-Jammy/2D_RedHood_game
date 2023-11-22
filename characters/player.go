@@ -25,7 +25,7 @@ func NewPlayer() *Player {
 		LocX: 32, LocY: 500,
 		MaxStat:  &MaxStat{ATK: 1, HP: 100},
 		HP:       100,
-		facing:   1,
+		Facing:   1,
 		lastCast: time.Now(),
 		Velocity: util.Vector{X: 0, Y: 0}}
 	player := Player{Character: character, WeaponE: nil}
@@ -64,13 +64,13 @@ func (p *Player) Update(blockedTiles *tiled.Map, obj []*tiled.Object) map[string
 	switch {
 	case ebiten.IsKeyPressed(ebiten.KeyArrowLeft):
 		p.LocX -= SPEED
-		p.facing = -1
+		p.Facing = -1
 		p.maxFrame = len(p.runImages)
 		p.CurrentImg = p.runImages[(p.trackFrame-1)/IMG_PER_SEC]
 		util.PlaySound(p.walkSound)
 	case ebiten.IsKeyPressed(ebiten.KeyArrowRight):
 		p.LocX += SPEED
-		p.facing = 1
+		p.Facing = 1
 		p.maxFrame = len(p.runImages)
 		p.CurrentImg = p.runImages[(p.trackFrame-1)/IMG_PER_SEC]
 		util.PlaySound(p.walkSound)
