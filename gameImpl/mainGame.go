@@ -60,7 +60,8 @@ func (g *Game) Update() error {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.background.Draw(screen)
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("HP: %d/%d | ATK: %d", g.player.HP, g.player.MaxStat.HP, g.player.ATK))
+	ebitenutil.DebugPrint(screen, fmt.Sprintf("HP: %d/%d | ATK: %d",
+		g.player.HP, g.player.MaxStat.HP, g.player.MaxStat.ATK))
 	g.player.Draw(screen)
 
 	g.DrawEtcItems(screen)
@@ -71,6 +72,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 func (g *Game) UpdateBag() {
 	g.playerUI.Bag.RemoveChildren()
 	for _, it := range g.player.Bag {
+		listenedItem := it
 		container := widget.NewContainer(
 			widget.ContainerOpts.BackgroundImage(util.ImageNineSlice(it.GetImage(), 32, 32)),
 			widget.ContainerOpts.WidgetOpts(
@@ -79,7 +81,8 @@ func (g *Game) UpdateBag() {
 			widget.ContainerOpts.WidgetOpts(
 				widget.WidgetOpts.MouseButtonPressedHandler(func(args *widget.WidgetMouseButtonPressedEventArgs) {
 					//TODO: add attributes
-					fmt.Println(g.player.EquipItem(it))
+					fmt.Println(listenedItem.Buffs.HP, listenedItem.Buffs.ATK)
+					g.player.EquipItem(listenedItem)
 				}),
 			),
 		)

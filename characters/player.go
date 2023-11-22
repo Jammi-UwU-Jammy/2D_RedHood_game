@@ -3,7 +3,6 @@ package characters
 import (
 	"RedHood/etc"
 	"RedHood/util"
-	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/lafriks/go-tiled"
 	"time"
@@ -47,6 +46,7 @@ func (p *Player) Update(blockedTiles *tiled.Map, obj []*tiled.Object) map[string
 
 	outputs := make(map[string]interface{})
 	oldX, oldY := p.LocX, p.LocY
+	p.StatUpdate()
 
 	switch {
 	case ebiten.IsKeyPressed(ebiten.KeyArrowLeft):
@@ -95,29 +95,14 @@ func (p *Player) Update(blockedTiles *tiled.Map, obj []*tiled.Object) map[string
 	return outputs
 }
 
-// EquipItem returns true if equipped, false if unequipped
-func (p *Player) EquipItem(item *etc.Item) bool {
-	if p.WeaponE == nil {
-		//TODO: Only HP & ATK for now
-		p.WeaponE = item
-		p.MaxStat.HP += item.Buffs.HP
-		p.MaxStat.ATK += item.Buffs.ATK
-		//p.equipped = append(p.equipped, item)
-		fmt.Println(item.Buffs.HP, item.Buffs.ATK)
-		return true
-	} else if p.WeaponE == item {
-		//TODO: Demo, only uses one weapon slot for now
-		p.WeaponE = nil
-		p.MaxStat.HP -= item.Buffs.HP
-		p.MaxStat.ATK -= item.Buffs.ATK
-		return false
-	} else {
-		fmt.Println("New Weapon")
-		p.MaxStat.HP -= p.WeaponE.Buffs.HP
-		p.MaxStat.ATK -= p.WeaponE.Buffs.ATK
-		p.WeaponE = item
-		p.MaxStat.HP += item.Buffs.HP
-		p.MaxStat.ATK += item.Buffs.ATK
+func (p *Player) EquipItem(item *etc.Item) {
+	p.WeaponE = item
+}
+
+func (p *Player) StatUpdate() {
+	if p.WeaponE != nil {
+		p.MaxStat.HP = 100 + p.WeaponE.Buffs.HP
+		p.MaxStat.ATK = 1 + p.WeaponE.Buffs.ATK
+		p.MaxStat.DEF = 100 + p.WeaponE.Buffs.DEF
 	}
-	return false
 }
