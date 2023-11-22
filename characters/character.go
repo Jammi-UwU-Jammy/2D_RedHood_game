@@ -11,8 +11,12 @@ import (
 
 const (
 	STD_TILE_WIDTH = 32
-	IMG_PER_SEC    = 30 //assuming 60 frames/sec
+	IMG_PER_SEC    = 20 //assuming 60 frames/sec
 )
+
+type MaxStat struct {
+	HP, ATK, DEF int
+}
 
 type Character struct {
 	CurrentImg *ebiten.Image
@@ -21,7 +25,11 @@ type Character struct {
 	atkImages  []*ebiten.Image
 	exitImages []*ebiten.Image
 
-	HP         int
+	MaxStat *MaxStat
+	HP      int
+	ATK     int
+	DEF     int
+
 	trackFrame int
 	maxFrame   int
 
@@ -90,7 +98,7 @@ func (c *Character) CollisionVSObjects(obstacles []*tiled.Object) (bool, uint32)
 	return false, 1
 }
 
-func (c *Character) collisionVSBG(tiledMap *tiled.Map) bool {
+func (c *Character) CollisionVSBG(tiledMap *tiled.Map) bool {
 	tileX := int(c.LocX) / tiledMap.TileWidth
 	tileY := int(c.LocY)/tiledMap.TileHeight + 1
 

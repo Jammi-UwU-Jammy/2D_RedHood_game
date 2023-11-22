@@ -25,7 +25,7 @@ func NewRandomSword(initX, initY float64) *Item {
 	randomItemPath := fmt.Sprintf("%s%d%s", SWORDS_URI, rand.Intn(44)+25, ".png")
 	fmt.Println(randomItemPath)
 	img := util.LoadEmbeddedImage(randomItemPath, 1000)
-	buff := &Buff{ATK: rand.Intn(5)}
+	buff := &Buff{ATK: rand.Intn(10), HP: rand.Intn(20)}
 	e := Effect{CurrentImage: img, LocX: initX, LocY: initY}
 	item := Item{Effect: &e, Weight: 10, Buffs: buff}
 	return &item

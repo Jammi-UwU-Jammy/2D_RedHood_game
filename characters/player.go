@@ -3,6 +3,7 @@ package characters
 import (
 	"RedHood/etc"
 	"RedHood/util"
+	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/lafriks/go-tiled"
 	"time"
@@ -18,11 +19,12 @@ const (
 func NewPlayer() *Player {
 	character := &Character{
 		LocX: 32, LocY: 500,
+		MaxStat:  &MaxStat{ATK: 1, HP: 100},
 		HP:       100,
 		facing:   1,
 		lastCast: time.Now(),
 		Velocity: util.Vector{X: 0, Y: 0}}
-	player := Player{Character: character}
+	player := Player{Character: character, WeaponE: nil}
 
 	player.idleImages = player.loadImageAssets(IDLE_IMAGES_URI, util.Point{X: 0, Y: 0}, 80, 80)
 	player.runImages = player.loadImageAssets(RUN_IMAGES_URI, util.Point{X: 0, Y: 0}, 80, 80)
@@ -37,6 +39,7 @@ func NewPlayer() *Player {
 type Player struct {
 	*Character
 	Bag      []*etc.Item
+	WeaponE  *etc.Item
 	equipped []*etc.Item
 }
 
@@ -78,7 +81,7 @@ func (p *Player) Update(blockedTiles *tiled.Map, obj []*tiled.Object) map[string
 		p.CurrentImg = p.idleImages[(p.trackFrame-1)/IMG_PER_SEC]
 	}
 	p.Velocity.X, p.Velocity.Y = p.LocX-oldX, p.LocY-oldY
-	if p.collisionVSBG(blockedTiles) {
+	if p.CollisionVSBG(blockedTiles) {
 		p.LocX -= p.Velocity.X
 		p.LocY -= p.Velocity.Y
 		//fmt.Println("Collided")
@@ -90,4 +93,31 @@ func (p *Player) Update(blockedTiles *tiled.Map, obj []*tiled.Object) map[string
 	outputs["LocX"], outputs["LocY"] = p.LocX, p.LocY
 
 	return outputs
+}
+
+// EquipItem returns true if equipped, false if unequipped
+func (p *Player) EquipItem(item *etc.Item) bool {
+	if p.WeaponE == nil {
+		//TODO: Only HP & ATK for now
+		p.WeaponE = item
+		p.MaxStat.HP += item.Buffs.HP
+		p.MaxStat.ATK += item.Buffs.ATK
+		//p.equipped = append(p.equipped, item)
+		fmt.Println(item.Buffs.HP, item.Buffs.ATK)
+		return true
+	} else if p.WeaponE == item {
+		//TODO: Demo, only uses one weapon slot for now
+		p.WeaponE = nil
+		p.MaxStat.HP -= item.Buffs.HP
+		p.MaxStat.ATK -= item.Buffs.ATK
+		return false
+	} else {
+		fmt.Println("New Weapon")
+		p.MaxStat.HP -= p.WeaponE.Buffs.HP
+		p.MaxStat.ATK -= p.WeaponE.Buffs.ATK
+		p.WeaponE = item
+		p.MaxStat.HP += item.Buffs.HP
+		p.MaxStat.ATK += item.Buffs.ATK
+	}
+	return false
 }

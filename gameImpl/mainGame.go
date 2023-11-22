@@ -52,7 +52,7 @@ func (g *Game) Update() error {
 	g.background.Update()
 	g.PlayerDataToSend = g.player.Update(g.background.TiledMap, g.portals)
 
-	g.playerUI.HP.Configure(widget.ProgressBarOpts.Values(0, 100, g.player.HP))
+	g.playerUI.HP.Configure(widget.ProgressBarOpts.Values(0, g.player.MaxStat.HP, g.player.HP))
 	g.playerUI.Update()
 	g.UpdateBag()
 	return nil
@@ -60,7 +60,7 @@ func (g *Game) Update() error {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.background.Draw(screen)
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("%d", g.player.HP))
+	ebitenutil.DebugPrint(screen, fmt.Sprintf("HP: %d/%d | ATK: %d", g.player.HP, g.player.MaxStat.HP, g.player.ATK))
 	g.player.Draw(screen)
 
 	g.DrawEtcItems(screen)
@@ -75,6 +75,12 @@ func (g *Game) UpdateBag() {
 			widget.ContainerOpts.BackgroundImage(util.ImageNineSlice(it.GetImage(), 32, 32)),
 			widget.ContainerOpts.WidgetOpts(
 				widget.WidgetOpts.MinSize(32, 32),
+			),
+			widget.ContainerOpts.WidgetOpts(
+				widget.WidgetOpts.MouseButtonPressedHandler(func(args *widget.WidgetMouseButtonPressedEventArgs) {
+					//TODO: add attributes
+					fmt.Println(g.player.EquipItem(it))
+				}),
 			),
 		)
 		g.playerUI.Bag.AddChild(container)

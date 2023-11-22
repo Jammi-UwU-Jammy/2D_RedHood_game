@@ -29,7 +29,7 @@ type Mob struct {
 
 func NewEnemyMage() *Mob {
 	character := &Character{
-		LocX: 176, LocY: 527,
+		LocX: 800 + rand.Float64()*400 - 200, LocY: 450 + rand.Float64()*400 - 200,
 		HP:       150,
 		facing:   1,
 		lastCast: time.Now(),
@@ -47,7 +47,7 @@ func NewEnemyMage() *Mob {
 
 func NewEnemySkeleton() *Mob {
 	character := &Character{
-		LocX: 176, LocY: 527,
+		LocX: 800 + rand.Float64()*400 - 200, LocY: 450 + rand.Float64()*400 - 200,
 		HP:       50,
 		facing:   1,
 		lastCast: time.Now(),

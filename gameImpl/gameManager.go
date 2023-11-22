@@ -93,6 +93,10 @@ func (m *Manager) getPlayerData() (locX, locY float64) {
 func (m *Manager) updateEnemies() {
 	var mobs []*characters.Mob
 	for _, mob := range m.currentMap.Enemies {
+		if mob.CollisionVSBG(m.currentMap.TiledMap) {
+			mob.Velocity.X *= -1
+			mob.Velocity.Y *= -1
+		}
 		if mob.HP > 0 {
 			mobs = append(mobs, mob)
 			damageFromMob := mob.Update(m.currentPlayer)
