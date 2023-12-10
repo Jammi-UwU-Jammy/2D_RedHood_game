@@ -16,6 +16,11 @@ import (
 var Assets embed.FS
 var SfxContext = audio.NewContext(48000)
 
+const (
+	TILEWIDTH  = 32
+	TILEHEIGHT = 32
+)
+
 func CheckErrExit(errCode int, err error) {
 	if err != nil {
 		fmt.Println(err)

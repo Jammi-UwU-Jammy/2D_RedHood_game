@@ -3,9 +3,12 @@ package environments
 import (
 	"RedHood/characters"
 	"RedHood/util"
+	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/lafriks/go-tiled"
 	_ "github.com/lafriks/go-tiled"
+	path "github.com/solarlune/paths"
+	"strings"
 )
 
 const (
@@ -21,11 +24,12 @@ type Map struct {
 	tiledHash    map[uint32]*ebiten.Image
 	obstacleHash map[uint32]*ebiten.Image
 	TiledMap     *tiled.Map
+	PathGrid     *path.Grid
 
 	Enemies []*characters.Mob
 }
 
-func NewBackground(tmxPath string, enemies []*characters.Mob) *Map {
+func NewBackground(tmxPath string) *Map {
 	file := tiled.WithFileSystem(util.Assets)
 	bgMap, err := tiled.LoadFile(tmxPath, file)
 	util.CheckErrExit(100, err)
@@ -35,18 +39,25 @@ func NewBackground(tmxPath string, enemies []*characters.Mob) *Map {
 
 	bg.TiledMap = bgMap
 	bg.tiledHash = util.MakeEImagesFromMap(*bgMap)
-	bg.Enemies = enemies
+
+	pathString := makeSearchMap(bg.TiledMap)
+	fmt.Println(len(pathString))
+	searchPthMp := path.NewGridFromStringArrays(pathString, bg.TiledMap.TileWidth, bg.TiledMap.TileHeight)
+	searchPthMp.SetWalkable('1', true)
+	searchPthMp.SetWalkable('0', false)
+
+	bg.PathGrid = searchPthMp
 
 	return &bg
 }
 
-func NewDefaultMap(enemies []*characters.Mob) *Map {
-	bg := NewBackground(defaultTiledMap, enemies)
+func NewDefaultMap() *Map {
+	bg := NewBackground(defaultTiledMap)
 	return bg
 }
 
-func NewLakeMap(enemies []*characters.Mob) *Map {
-	bg := NewBackground(lakeTiledMap, enemies)
+func NewLakeMap() *Map {
+	bg := NewBackground(lakeTiledMap)
 	return bg
 }
 
@@ -96,4 +107,30 @@ func (bg *Map) renderMobs(screen *ebiten.Image) {
 		mob.Draw(screen)
 		//fmt.Println()
 	}
+}
+
+func (bg *Map) SetMobs(mobs []*characters.Mob) {
+	bg.Enemies = mobs
+}
+
+func makeSearchMap(tiledMap *tiled.Map) []string {
+	mapAsStringSlice := make([]string, 0, tiledMap.Height) //each row will be its own string
+	row := strings.Builder{}
+
+	for position, tile := range tiledMap.Layers[0].Tiles {
+		if position%tiledMap.Width == 0 && position > 0 { // we get the 2d array as an unrolled one-d array
+			mapAsStringSlice = append(mapAsStringSlice, row.String())
+			row = strings.Builder{}
+		}
+		if tile.ID == 0 {
+			row.WriteString(fmt.Sprintf("%d", 1))
+		} else {
+			row.WriteString(fmt.Sprintf("%d", 0))
+		}
+	}
+	mapAsStringSlice = append(mapAsStringSlice, row.String())
+	for _, i := range mapAsStringSlice {
+		fmt.Println(i)
+	}
+	return mapAsStringSlice
 }
