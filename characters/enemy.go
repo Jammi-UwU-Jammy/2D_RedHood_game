@@ -149,6 +149,9 @@ func (m *Mob) stateUpdate(player *Player) {
 	}
 	if distance < 300 && distance > 20 {
 		m.state = RUN_STATE
+		if m.prevState != m.state && m.state != EXIT_STATE {
+			m.makePath(player)
+		}
 	} else if distance <= 20 {
 		m.state = ATTACK_STATE
 
@@ -162,9 +165,6 @@ func (m *Mob) stateUpdate(player *Player) {
 }
 
 func (m *Mob) updatePath(player *Player) {
-	if m.prevState != m.state && m.state != EXIT_STATE {
-		m.makePath(player)
-	}
 
 	if m.autoPath != nil {
 		//if len(m.autoPath.Cells) == 0 {
