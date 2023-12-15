@@ -39,6 +39,7 @@ type Mob struct {
 	pathGrid *paths.Grid
 
 	prevState int
+	pathCD    time.Time
 }
 
 func NewEnemyMage(path *paths.Grid) *Mob {
@@ -48,7 +49,7 @@ func NewEnemyMage(path *paths.Grid) *Mob {
 		Facing:   1,
 		lastCast: time.Now(),
 		Velocity: util.Vector{X: 0, Y: 0}}
-	mob := Mob{Character: character, pathGrid: path}
+	mob := Mob{Character: character, pathGrid: path, pathCD: time.Now()}
 
 	mob.idleImages = mob.loadImageAssets(MAGE_IDLE_IMAGES_URI, util.Point{X: 0, Y: 0}, 250, 250)
 	mob.runImages = mob.loadImageAssets(MAGE_RUN_IMAGES_URI, util.Point{X: 0, Y: 0}, 250, 250)
@@ -67,7 +68,7 @@ func NewEnemySkeleton(path *paths.Grid) *Mob {
 		Facing:   1,
 		lastCast: time.Now(),
 		Velocity: util.Vector{X: 0, Y: 0}}
-	mob := Mob{Character: character, pathGrid: path}
+	mob := Mob{Character: character, pathGrid: path, pathCD: time.Now()}
 
 	mob.idleImages = mob.loadImageAssets(SKE_IDLE_IMAGES_URI, util.Point{X: 0, Y: 0}, 24, 32)
 	mob.runImages = mob.loadImageAssets(SKE_RUN_IMAGES_URI, util.Point{X: 0, Y: 0}, 22, 33)
@@ -85,7 +86,7 @@ func NewSamurai(path *paths.Grid) *Mob {
 		Facing:   1,
 		lastCast: time.Now(),
 		Velocity: util.Vector{X: 0, Y: 0}}
-	mob := Mob{Character: character, pathGrid: path}
+	mob := Mob{Character: character, pathGrid: path, pathCD: time.Now()}
 
 	mob.idleImages = mob.loadImageAssets(SMR_IDLE_IMAGES_URI, util.Point{X: 0, Y: 0}, 158, 125)
 	mob.runImages = mob.loadImageAssets(SMR_RUN_IMAGES_URI, util.Point{X: 0, Y: 0}, 158, 125)
@@ -149,9 +150,13 @@ func (m *Mob) stateUpdate(player *Player) {
 	}
 	if distance < 300 && distance > 20 {
 		m.state = RUN_STATE
-		if m.prevState != m.state && m.state != EXIT_STATE {
+		if util.IsCDExceeded(2, m.pathCD) {
 			m.makePath(player)
+			m.pathCD = time.Now()
 		}
+		//if m.prevState != m.state && m.state != EXIT_STATE {
+
+		//}
 	} else if distance <= 20 {
 		m.state = ATTACK_STATE
 
@@ -171,10 +176,9 @@ func (m *Mob) updatePath(player *Player) {
 		//	return
 		//}
 		pathCell := m.autoPath.Current()
-		if math.Abs(float64(pathCell.X*util.TILEWIDTH)-(m.LocX)) <= 1 &&
-			math.Abs(float64(pathCell.Y*util.TILEHEIGHT)-(m.LocY)) <= 1 { //if we are now on the tile we need to be on
+		if math.Abs(float64(pathCell.X*util.TILEWIDTH)-(m.LocX)) <= 2 &&
+			math.Abs(float64(pathCell.Y*util.TILEHEIGHT)-(m.LocY)) <= 2 { //if we are now on the tile we need to be on
 			m.autoPath.Advance()
-			fmt.Println("Advanced")
 		}
 		direction := 0.0
 		if pathCell.X*util.TILEWIDTH > int(m.LocX) {
@@ -182,8 +186,6 @@ func (m *Mob) updatePath(player *Player) {
 		} else if pathCell.X*util.TILEWIDTH < int(m.LocX) {
 			direction = -1
 		}
-		fmt.Println("Cell ", pathCell.X*32, " : ", pathCell.Y*32)
-		fmt.Println("Mob ", int(m.LocX), ":", int(m.LocY))
 
 		directionY := 0.0
 		if pathCell.Y*util.TILEHEIGHT > int(m.LocY) {

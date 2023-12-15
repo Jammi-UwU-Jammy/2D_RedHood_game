@@ -67,6 +67,7 @@ func (c *Character) Draw(screen *ebiten.Image) {
 	} else {
 		c.trackFrame += 1
 	}
+
 	drawOps := ebiten.DrawImageOptions{}
 	distanceErr := float64(c.CurrentImg.Bounds().Dx() * c.Facing)
 
