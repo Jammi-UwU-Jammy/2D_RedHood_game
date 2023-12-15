@@ -17,8 +17,12 @@ Jam Clark
     <li>When the quest is completed, it is auto cleared and a sound is played.</li>
 </div>
 
-<h3>I. Known issues:</h3>
+<h3>I. Known issues:</h3><p>(updated 12/14)</p> 
 <div>
+    <li>The AI doesn't always arrive at destination. Sometimes the path is updated due to the 2s cycle and the remaining distance 
+        keeps getting messed up by it. This results in the glitchy images and enemy sometimes never arrives.</li>
+    <li>The frame goes crazy after a while and movements are slowed down. It is a common issue amongst all characters and I
+    don't want to fix it.</li>
     <li>The characters are small.</li>
     <li>Enemies sometimes get stuck in between trees due to non-uniform-shaped obstacles/blocks</li>
     <li>Enemies can't move past blocked objects, but can if they see the player. Maybe I'll fix it when I use the AI instead. </li>
