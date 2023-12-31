@@ -21,15 +21,9 @@ Jam Clark
 <div>
     <li>The AI doesn't always arrive at destination. Sometimes the path is updated due to the 2s cycle and the remaining distance 
         keeps getting messed up by it. This results in the glitchy images and enemy sometimes never arrives.</li>
-    <li>The frame goes crazy after a while and movements are slowed down. It is a common issue amongst all characters and I
-    don't want to fix it.</li>
-    <li>The characters are small.</li>
     <li>Enemies sometimes get stuck in between trees due to non-uniform-shaped obstacles/blocks</li>
-    <li>Enemies can't move past blocked objects, but can if they see the player. Maybe I'll fix it when I use the AI instead. </li>
-    <li>Mages and Samurais' heights are much larger than character's, so it seems like they stand below the player. 
-        But they share the same Draw() so I don't want to put in extra work to correct all types of enemies.</li>
-    <li>Jumping repeats the sound too fast. Due today & gI haven't eaten.</li>
+    <li>Mages and Samurais' heights are much larger than character's, so it seems like they stand below the player</li>
     <li>Samurais don't have death animations. They weren't in the package.</li>
     <li>Can only equip and not unequip.</li>
-    <li>There is no handle for character's death. It wasn't required.</li>
+    <li>There is no handle for character's death.
 </div>
