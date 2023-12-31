@@ -1,7 +1,9 @@
-#2D Game, project 3
+#2D Game, project
 Jam Clark
 
 <h3>I. Guide:</h3>
+<p>Because this is a project during which I explored the 2D game design, it doesn't have the extravagant stuff such as story or loading
+screen. Mostly, it is to build the functionalities of a game and less focus on the completion.</p>
 <div>
     <li>Movements: arrow keys.</li>
     <li>Attack: key A.</li>
